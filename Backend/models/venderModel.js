@@ -27,7 +27,7 @@ const Vender=sequelize.define("vender",{
     },
     otp : {
         type : DataTypes.STRING,
-        defaultValue : "0000",
+        defaultValue : "000000",
     }
 });
 
