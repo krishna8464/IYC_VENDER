@@ -24,6 +24,10 @@ const Vender=sequelize.define("vender",{
     count : {
         type : DataTypes.INTEGER,
         defaultValue: 0,
+    },
+    otp : {
+        type : DataTypes.STRING,
+        defaultValue : "0000",
     }
 });
 

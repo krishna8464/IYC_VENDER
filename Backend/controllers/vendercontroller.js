@@ -12,9 +12,7 @@ exports.createVender = async (req, res) => {
     }
   }
 
-
-let OTP
-
+ 
 
 exports.getOTP = async(req,res) => {
     let { number } = req.body;
@@ -37,8 +35,11 @@ exports.getOTP = async(req,res) => {
                 return randomNumbers;
              }
              const sixRandomNumbers = generateRandomNumbers();
-             OTP=sixRandomNumbers
-             res.status(201).json({Success : "success", id : body[0].id ,"response":sixRandomNumbers});
+             let value = sixRandomNumbers.join("");
+             updateData = { otp : value }
+             await Vender.update(updateData,{ where : { id : venderData.id} });
+
+             res.status(201).json({Success : "success", id : body[0].id ,"response":value});
 
         }
     } catch (error) {
@@ -49,13 +50,10 @@ exports.getOTP = async(req,res) => {
 
 exports.validateOTP = async(req,res) => {
     let { otp , id } = req.body;
-    let serverotp = OTP.join("");
     let reqotp = otp
-    // console.log(serverotp)
-    // console.log(reqotp)
    let venderData = await Vender.findOne({ where : { id : id } });
     try {
-     if(serverotp == reqotp){
+     if(venderData.otp == reqotp){
          const token = jwt.sign({userid:id},process.env.KEY);
          res.status(200).json({ Success : "Login success" , "Access_Token":token , User : {"name" : venderData.name , "number" : venderData.number , "role" : venderData.role}})
      }else{
