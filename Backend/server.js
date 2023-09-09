@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const { sequelize } = require("./config/db");
 const { Userroute } = require("./routes/userRoute");
+const { Venderroute } = require("./routes/venderRoute")
 const { logger } = require("./middleware/logger")
 const { errorHandler } = require("./middleware/errorhandler");
 
@@ -22,6 +23,7 @@ app.get("/",(req,res)=>{
 })
 
 app.use("/user",Userroute);
+app.use("/vender",Venderroute);
 
 // Handle invalid routes
 app.use(logger,(req, res) => {
