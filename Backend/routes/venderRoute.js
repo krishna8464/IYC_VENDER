@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken")
 
 const { Vender } = require("../models/venderModel");
 const { logger } = require("../middleware/logger");
-const { createVender , getOTP , validateOTP , updateVender , deleteVender , getoneVender , getallVender } = require("../controllers/vendercontroller")
+const { createVender , getOTP , validateOTP , updateVender , deleteVender , getoneVender , getallVender , getcoutallVender } = require("../controllers/vendercontroller")
 
 
 Venderroute.post("/create", logger , createVender );
@@ -22,6 +22,8 @@ Venderroute.delete("/delete/:id", logger , deleteVender);
 Venderroute.get("/getone/:id", logger , getoneVender);
 
 Venderroute.get("/getall", logger , getallVender);
+
+Venderroute.get("/getcount", logger , getcoutallVender)
 
 
 

@@ -10,7 +10,7 @@ const authMiddleware = async (req, res, next) => {
     try {
       if (tokenSyn=="Bearer") {
         const decodedToken = jwt.verify(token, process.env.KEY);
-        req.body.userId = decodedToken.id;
+        req.body.venderId = decodedToken.id;
         next();
       } else {
         res.status.json({error : "Token not authorized."});

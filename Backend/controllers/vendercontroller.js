@@ -5,10 +5,10 @@ exports.createVender = async (req, res) => {
     let body = req.body;
     console.log(body)
     try {
-      await Vender.create(body);
-      res.status(201).json({Success : "Vender created successfully"});
+     let vender =  await Vender.create(body);
+      res.status(201).json(vender);
     } catch (error) {
-        res.status(500).json({error : "Vender already exist"});
+        res.status(409).json({ message : "Vender already exist"});
     }
   }
 
@@ -21,7 +21,7 @@ exports.getOTP = async(req,res) => {
         let body = [venderData]
 
         if(body[0]===null){
-            res.status(201).json({"error" : "User not found"})
+            res.status(201).json({"message" : "User not found"})
         }else{
             
             function generateRandomNumbers() {
@@ -39,11 +39,11 @@ exports.getOTP = async(req,res) => {
              updateData = { otp : value }
              await Vender.update(updateData,{ where : { id : venderData.id} });
 
-             res.status(201).json({Success : "success", id : body[0].id ,"response":value});
+             res.status(201).json({venderid : body[0].id ,"otp":value});
 
         }
     } catch (error) {
-        res.status(500).json({error : "Not authorized"});
+        res.status(402).json({message : "Not authorized"});
     }
 };
 
@@ -55,12 +55,12 @@ exports.validateOTP = async(req,res) => {
     try {
      if(venderData.otp == reqotp){
          const token = jwt.sign({userid:id},process.env.KEY);
-         res.status(200).json({ Success : "Login success" , "Access_Token":token , User : {"name" : venderData.name , "number" : venderData.number , "role" : venderData.role}})
+         res.status(200).json({ "Access_Token":token , vender : {"name" : venderData.name , "number" : venderData.number , "role" : venderData.role}})
      }else{
-         res.send("notmatched")
+        res.status(400).json({message : "wrong otp entered"});
      }
     } catch (error) {
-     res.status(500).json({error});
+     res.status(500).json({message : "wrong otp entered"});
     }
  }
 
@@ -71,12 +71,13 @@ exports.validateOTP = async(req,res) => {
         let updated = await Vender.update(updateData,{ where : { id : ID} });
 
         if(updated[0]==1){
-            res.status(200).json ({Success : "Vender updated successfully"});
+            let user = await Vender.findOne({ where : { id : ID } });
+            res.status(200).json (user);
         }else{
-            res.status(500).json({error : "No one present with the id"});
+            res.status(400).json({message : "No one present with the id"});
         }
     } catch (error) {
-        res.status(500).json({error : "something went wrong with the route"});
+        res.status(500).json({message : "something went wrong with the route"});
     }
  };
 
@@ -88,13 +89,13 @@ exports.validateOTP = async(req,res) => {
         let deleted = await Vender.destroy({ where : { id : ID } })
 
         if(deleted == 1){
-            res.status(200).json({Success : "Vender deleted successfully"});
+            res.status(200).json({});
         }else{
-            res.status(200).json({Success : "there is no Vender with the id"});
+            res.status(400).json({message : "There is no Vender with the id"});
         }
         
     } catch (error) {
-        res.status(500).json({error : error});
+        res.status(500).json({message : "Something went wrong in the vender delete route"});
     }
  };
 
@@ -102,22 +103,31 @@ exports.validateOTP = async(req,res) => {
  exports.getoneVender = async (req,res) =>{
     let ID = req.params['id'];
     try {
-        let user = await Vender.findOne({ where : { id : ID } });
-        res.status(200).json({user});
+        let vender = await Vender.findOne({ where : { id : ID } });
+        res.status(200).json(vender);
     } catch (error) {
-        res.status(500).json({error : error});
+        res.status(500).json({message : "Something went wrong in the vender getone route"});
     }
  }
 
  exports.getallVender = async (req,res) =>{
     try {
-        let users = await Vender.findAndCountAll();
+        let vender = await Vender.findAndCountAll();
 
-        res.status(201).json({users : users});
+        res.status(201).json(vender.rows);
 
     } catch (error) {
-        res.status(500).json({error : "something went wrong with the route"});
+        res.status(500).json({message : "something went wrong with the route"});
     }
  }
 
+
+ exports.getcoutallVender = async(req,res)=>{
+    try {
+      let count = await Vender.count();
+          res.status(200).json({ count : count });
+    } catch (error) {
+         res.status(500).json({message : "Something went wrong in the vender getcount route"});
+    }
+}
  
