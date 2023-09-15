@@ -170,6 +170,23 @@ exports.venderdecCount = async (req,res)=>{
     }
 }
  
+exports.venderStatistics = async (req,res) => {
+    let venderid = req.body.venderId;
+    try {
+        const vender = await Vender.findByPk(venderid, { attributes: ['count'] });
+
+         // Get the total sum of the count column for all vendors
+        const totalVendorCount = await Vender.sum('count');
+        let othersscount = totalVendorCount-vender.count
+        let yourcount = vender.count
+        res.send({yourcount,othersscount})
+
+
+    } catch (error) {
+        res.status(500).json({message : "Something went wrong in the vender Inccount route"});
+    }
+}
+
 
 exports.venderLogout = async (req,res) =>{
     try {

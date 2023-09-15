@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken")
 const { Vender } = require("../models/venderModel");
 const { logger } = require("../middleware/logger");
 const { authMiddleware } = require("../middleware/auth");
-const { createVender , getOTP , validateOTP , updateVender , deleteVender , getoneVender , getallVender , getcoutallVender , venderLogout , venderincCount , venderdecCount } = require("../controllers/vendercontroller")
+const { createVender , getOTP , validateOTP , updateVender , deleteVender , getoneVender , getallVender , getcoutallVender , venderLogout , venderincCount , venderdecCount , venderStatistics } = require("../controllers/vendercontroller")
 
 
 Venderroute.post("/create", logger , createVender );
@@ -32,6 +32,7 @@ Venderroute.patch("/increcount", logger , authMiddleware , venderincCount);
 
 Venderroute.patch("/deccount" , logger , authMiddleware , venderdecCount);
 
+Venderroute.get("/venderStatistics", logger , authMiddleware , venderStatistics)
 
 
   module.exports = { Venderroute }
