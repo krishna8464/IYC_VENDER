@@ -6,7 +6,8 @@ const jwt = require("jsonwebtoken")
 
 const { Vender } = require("../models/venderModel");
 const { logger } = require("../middleware/logger");
-const { createVender , getOTP , validateOTP , updateVender , deleteVender , getoneVender , getallVender , getcoutallVender } = require("../controllers/vendercontroller")
+const { authMiddleware } = require("../middleware/auth");
+const { createVender , getOTP , validateOTP , updateVender , deleteVender , getoneVender , getallVender , getcoutallVender , venderLogout , venderincCount , venderdecCount } = require("../controllers/vendercontroller")
 
 
 Venderroute.post("/create", logger , createVender );
@@ -23,7 +24,13 @@ Venderroute.get("/getone/:id", logger , getoneVender);
 
 Venderroute.get("/getall", logger , getallVender);
 
-Venderroute.get("/getcount", logger , getcoutallVender)
+Venderroute.get("/getcount", logger , getcoutallVender);
+
+Venderroute.post("/logout", logger , authMiddleware , venderLogout);
+
+Venderroute.patch("/increcount", logger , authMiddleware , venderincCount);
+
+Venderroute.patch("/deccount" , logger , authMiddleware , venderdecCount);
 
 
 

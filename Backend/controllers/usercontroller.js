@@ -1,4 +1,5 @@
 const { Users } = require("../models/userModel");
+const { Vender } = require("../models/venderModel");
 const { sequelize } = require("../config/db");
 
 exports.createUser = async (req,res)=>{
@@ -30,6 +31,46 @@ exports.getUsers = async(req,res)=>{
     }
 }
 
+
+// exports.updatebyId = async(req,res)=>{
+//     let ID = req.params['id']
+//     let venderid = req.body.venderId;
+//     let updateData = req.body;
+//     try {
+//         let updated = await Users.update(updateData,{ where : { id : ID} });
+
+//         if(updated[0]==1){
+//             let user = await Users.findOne({ where : { id : ID } });
+//             if(user.status === "verified"){
+//                 const incrementValue = 1
+//                 const updateQuery = {
+//                     count: sequelize.literal(`count + ${incrementValue}`), 
+//                   };
+//                   const [updatedRows] = await Vender.update(updateQuery, { where: { id : venderid} });
+//                   if(updatedRows > 0){
+//                     res.status(200).json (user);
+//                   }else{
+//                     res.status(400).json({message : "No one present with the id"});
+//                   }
+//             }else{
+//                 const incrementValue = -1
+//                 const updateQuery = {
+//                     count: sequelize.literal(`count + ${incrementValue}`), 
+//                   };
+//                   const [updatedRows] = await Vender.update(updateQuery, { where: { id : venderid} });
+//                   if(updatedRows > 0){
+//                     res.status(200).json (user);
+//                   }else{
+//                     res.status(400).json({message : "No one present with the id"});
+//                   }
+//             }
+//         }else{
+//             res.status(400).json({message : "No one present with the id"});
+//         }
+//     } catch (error) {
+//         res.status(500).json({message : "something went wrong with the route"});
+//     }
+// }
 
 exports.updatebyId = async(req,res)=>{
     let ID = req.params['id']

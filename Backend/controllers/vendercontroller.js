@@ -1,4 +1,7 @@
 const { Vender } = require("../models/venderModel");
+const { client } = require("../config/db");
+const { sequelize } = require("../config/db");
+
 const jwt = require("jsonwebtoken")
 
 exports.createVender = async (req, res) => {
@@ -130,4 +133,53 @@ exports.validateOTP = async(req,res) => {
          res.status(500).json({message : "Something went wrong in the vender getcount route"});
     }
 }
+
+exports.venderincCount = async (req,res)=>{
+    let venderid = req.body.venderId;
+    try {
+               const incrementValue = 1
+                const updateQuery = {
+                    count: sequelize.literal(`count + ${incrementValue}`), 
+                  };
+                  const [updatedRows] = await Vender.update(updateQuery, { where: { id : venderid} });
+                  if(updatedRows > 0){
+                    res.status(200).json ({});
+                  }else{
+                    res.status(400).json({message : "No one present with the id"});
+                  }
+    } catch (error) {
+        res.status(500).json({message : "Something went wrong in the vender Inccount route"});
+    }
+}
+
+exports.venderdecCount = async (req,res)=>{
+    let venderid = req.body.venderId;
+    try {
+               const incrementValue = -1
+                const updateQuery = {
+                    count: sequelize.literal(`count + ${incrementValue}`), 
+                  };
+                  const [updatedRows] = await Vender.update(updateQuery, { where: { id : venderid} });
+                  if(updatedRows > 0){
+                    res.status(200).json ({});
+                  }else{
+                    res.status(400).json({message : "No one present with the id"});
+                  }
+    } catch (error) {
+        res.status(500).json({message : "Something went wrong in the vender Inccount route"});
+    }
+}
  
+
+exports.venderLogout = async (req,res) =>{
+    try {
+        let [tokenSyn, token] = req.headers.authorization.trim().split(" ");
+
+        let blacklisting = await client.SADD("blackTokens", token);
+
+        res.status(200).json({message : "session logedout"});
+        
+    } catch (error) {
+        res.status(500).json({message : "Something went wrong in the vender logout route"});
+    }
+}

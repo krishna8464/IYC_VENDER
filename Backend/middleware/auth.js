@@ -1,5 +1,6 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const { client } = require("../config/db");
 require("dotenv").config();
 
 // to give the user authentication to access the routes
@@ -9,9 +10,14 @@ const authMiddleware = async (req, res, next) => {
   
     try {
       if (tokenSyn=="Bearer") {
-        const decodedToken = jwt.verify(token, process.env.KEY);
-        req.body.venderId = decodedToken.id;
-        next();
+        let black= await client.SISMEMBER('blackTokens', token);
+        if(black){
+            res.status(400).send({message:"Please Login Again"})
+        }else{
+            const decodedToken = jwt.verify(token, process.env.KEY);
+            req.body.venderId = decodedToken.userid;
+            next();
+        }
       } else {
         res.status.json({error : "Token not authorized."});
         return;

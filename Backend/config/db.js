@@ -12,6 +12,22 @@ sequelize.authenticate()
 })
 .catch((err) => {
     console.log("Failed to connect");
-})
+});
 
-module.exports={sequelize}
+
+// Redis cloud settings
+
+const { createClient } = require("redis");
+
+const client = createClient({
+    password: process.env.PASS,
+    socket: {
+        host: process.env.REDISHOST,
+        port: 11307
+    }
+});
+
+module.exports={
+    sequelize,
+    client
+}

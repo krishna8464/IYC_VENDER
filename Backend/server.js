@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-const { sequelize } = require("./config/db");
+const { sequelize , client } = require("./config/db");
 const { Userroute } = require("./routes/userRoute");
 const { Venderroute } = require("./routes/venderRoute")
 const { logger } = require("./middleware/logger")
@@ -33,6 +33,10 @@ app.use(logger,(req, res) => {
 
 app.listen(PORT,async()=>{
     try {
+
+        await client.connect();
+        console.log('Redis:', client.isReady);
+
         await sequelize;
         console.log("Data base is connected")
     } catch (error) {
