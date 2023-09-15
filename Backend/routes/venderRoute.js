@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken")
 const { Vender } = require("../models/venderModel");
 const { logger } = require("../middleware/logger");
 const { authMiddleware } = require("../middleware/auth");
-const { createVender , getOTP , validateOTP , updateVender , deleteVender , getoneVender , getallVender , getcoutallVender , venderLogout , venderincCount , venderdecCount , venderStatistics } = require("../controllers/vendercontroller")
+const { createVender , getOTP , validateOTP , updateVender , deleteVender , getoneVender , getallVender , getcoutallVender , venderLogout , venderincCount , venderdecCount , venderStatistics , vendertopScore , venderscoreASC , venderscoreDESC , vendernameASC } = require("../controllers/vendercontroller")
 
 
 Venderroute.post("/create", logger , createVender );
@@ -32,7 +32,14 @@ Venderroute.patch("/increcount", logger , authMiddleware , venderincCount);
 
 Venderroute.patch("/deccount" , logger , authMiddleware , venderdecCount);
 
-Venderroute.get("/venderStatistics", logger , authMiddleware , venderStatistics)
+Venderroute.get("/venderStatistics", logger , authMiddleware , venderStatistics);
 
+Venderroute.get("/topthree", logger , vendertopScore);
+
+Venderroute.get("/venderscoreASC", logger , venderscoreASC);
+
+Venderroute.get("/venderscoreDSC", logger, venderscoreDESC );
+
+Venderroute.get("/vendernameASC", logger, vendernameASC );
 
   module.exports = { Venderroute }

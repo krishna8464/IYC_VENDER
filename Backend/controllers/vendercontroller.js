@@ -179,11 +179,65 @@ exports.venderStatistics = async (req,res) => {
         const totalVendorCount = await Vender.sum('count');
         let othersscount = totalVendorCount-vender.count
         let yourcount = vender.count
-        res.send({yourcount,othersscount})
+        res.status(200).json({yourcount,othersscount})
 
 
     } catch (error) {
         res.status(500).json({message : "Something went wrong in the vender Inccount route"});
+    }
+}
+
+exports.vendertopScore = async (req,res) => {
+    let venderid = req.body.venderId;
+
+    try {
+        const topVendors = await Vender.findAll({
+            order: [['count', 'DESC']], // Order by the 'count' column in descending order
+            limit: 3, // Limit the result to 3 records
+          });
+
+          res.status(200).json(topVendors);
+        
+    } catch (error) {
+        res.status(500).json({message : "Something went wrong in the vender topthree route"});
+    }
+}
+
+exports.venderscoreASC = async (req,res) => {
+    try {
+        const ascendingOrder = await Vender.findAll({
+            order: [['count', 'ASC']], 
+          });
+          res.status(200).json(ascendingOrder);
+        
+    } catch (error) {
+        res.status(500).json({message : "Something went wrong in the vender ASC route"});
+    }
+}
+
+exports.venderscoreDESC = async (req,res) =>{
+    try {
+        const descendingOrder = await Vender.findAll({
+            order: [['count', 'DESC']],
+          });
+          res.status(200).json(descendingOrder);
+        
+    } catch (error) {
+        res.status(500).json({message : "Something went wrong in the vender DESC route"});
+    }
+}
+
+exports.vendernameASC = async (req,res) => {
+    try {
+        const vendors = await Vender.findAll({
+            order: [['name', 'ASC']], // Order by the 'username' column in ascending order
+          });
+
+          res.status(200).json(vendors);
+        
+        
+    } catch (error) {
+        res.status(500).json({message : "Something went wrong in the vender ASC route"});
     }
 }
 
