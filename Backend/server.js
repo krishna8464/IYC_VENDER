@@ -2,10 +2,11 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-const { sequelize , client } = require("./config/db");
+const { sequelize } = require("./config/db");
 const { Userroute } = require("./routes/userRoute");
-const { Venderroute } = require("./routes/venderRoute")
-const { logger } = require("./middleware/logger")
+const { Venderroute } = require("./routes/venderRoute");
+const { Tockenroute } = require("./routes/tockenRoute");
+const { logger } = require("./middleware/logger");
 const { errorHandler } = require("./middleware/errorhandler");
 
 const app = express();
@@ -22,8 +23,10 @@ app.get("/",(req,res)=>{
     res.status(200).json({"Gretting" : "Welcome"})
 })
 
+app.use("/tocken",Tockenroute);
 app.use("/user",Userroute);
 app.use("/vender",Venderroute);
+
 
 // Handle invalid routes
 app.use(logger,(req, res) => {
@@ -34,8 +37,8 @@ app.use(logger,(req, res) => {
 app.listen(PORT,async()=>{
     try {
 
-        await client.connect();
-        console.log('Redis:', client.isReady);
+        // await client.connect();
+        // console.log('Redis:', client.isReady);
 
         await sequelize;
         console.log("Data base is connected")

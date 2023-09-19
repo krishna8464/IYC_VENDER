@@ -2,9 +2,11 @@ const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
 const sequelize = new Sequelize(process.env.DB,process.env.USER,process.env.PASSWORD,{
-    host : "localhost", 
+    host : process.env.HOST, 
+    port : 3306,
     dialect : "mysql"
 });
+
 
 sequelize.authenticate()
 .then((res)=>{
@@ -17,17 +19,17 @@ sequelize.authenticate()
 
 // Redis cloud settings
 
-const { createClient } = require("redis");
+// const { createClient } = require("redis");
 
-const client = createClient({
-    password: process.env.PASS,
-    socket: {
-        host: process.env.REDISHOST,
-        port: 11307
-    }
-});
+// const client = createClient({
+//     password: process.env.PASS,
+//     socket: {
+//         host: process.env.REDISHOST,
+//         port: 11307
+//     }
+// });
 
 module.exports={
     sequelize,
-    client
+    // client
 }

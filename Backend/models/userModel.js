@@ -63,10 +63,10 @@ const Users=sequelize.define("users",{
 
 sequelize.sync()
 .then(() => {
-    console.log("table created successfully")
+    console.log("User table Synced successfully")
 })
 .catch(() => {
-    console.log("failed to create tale")
+    console.log("failed to sync User table")
 })
 
 module.exports={Users}

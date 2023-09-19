@@ -1,5 +1,6 @@
 const { Vender } = require("../models/venderModel");
-const { client } = require("../config/db");
+// const { client } = require("../config/db");
+const { Tocken } = require("../models/tockenModel");
 const { sequelize } = require("../config/db");
 
 const jwt = require("jsonwebtoken")
@@ -242,13 +243,37 @@ exports.vendernameASC = async (req,res) => {
 }
 
 
+exports.findVender = async (req,res)=>{
+    const key = req.params['key']
+    const value = req.params['value']
+    try {
+        const lowerCaseValue = value.toLowerCase(); // Convert the query value to lowercase
+
+        const vender = await Vender.findAll({
+          where: sequelize.where(sequelize.fn('LOWER', sequelize.col(key)), lowerCaseValue),
+        });
+        res.status(200).json(vender);
+        
+    } catch (error) {
+        res.status(500).json({message : "Some thing went wrong in the users delete route"});
+    }
+}
+
+
+
 exports.venderLogout = async (req,res) =>{
     try {
         let [tokenSyn, token] = req.headers.authorization.trim().split(" ");
 
-        let blacklisting = await client.SADD("blackTokens", token);
+        body = {
+            tocken : token
+        }
 
-        res.status(200).json({message : "session logedout"});
+        let black =  await Tocken.create(body);
+
+        // let blacklisting = await client.SADD("blackTokens", token);
+
+        res.status(200).json({});
         
     } catch (error) {
         res.status(500).json({message : "Something went wrong in the vender logout route"});

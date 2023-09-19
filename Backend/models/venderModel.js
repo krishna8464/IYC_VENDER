@@ -36,7 +36,7 @@ sequelize.sync()
     console.log("Vender table Synced successfully")
 })
 .catch(() => {
-    console.log("failed to Sync Vender tale")
+    console.log("failed to Sync Vender table")
 })
 
 module.exports={Vender}
