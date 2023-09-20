@@ -20,7 +20,7 @@ const authMiddleware = async (req, res, next) => {
         if(result){
             res.status(400).send({message:"Please Login Again"})
         }else{
-            const decodedToken = jwt.verify(token, process.env.KEY);
+            const decodedToken = jwt.verify(token, "WITHIYC");
             req.body.venderId = decodedToken.userid;
             next();
         }

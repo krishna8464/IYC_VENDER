@@ -28,7 +28,10 @@ const Vender=sequelize.define("vender",{
     otp : {
         type : DataTypes.STRING,
         defaultValue : "000000",
-    }
+    },status: {
+        type: DataTypes.STRING,
+        defaultValue: 'active', // Set the default value to 'active'
+    },
 });
 
 sequelize.sync()
