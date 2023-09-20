@@ -22,10 +22,13 @@ exports.getOTP = async(req,res) => {
     let { number } = req.body;
     try {
         let venderData = await Vender.findOne({ where : { number : number } });
-        let body = [venderData]
-
+        let body = [venderData];
+        console.log(venderData.status);
+        if(venderData.status === "deactivate"){
+            res.status(201).json({"message" : "Vender is not active"})
+        }else{
         if(body[0]===null){
-            res.status(201).json({"message" : "User not found"})
+            res.status(201).json({"message" : "Vender not found"})
         }else{
             
             function generateRandomNumbers() {
@@ -46,6 +49,7 @@ exports.getOTP = async(req,res) => {
              res.status(201).json({venderid : body[0].id ,"otp":value});
 
         }
+    }
     } catch (error) {
         res.status(402).json({message : "Not authorized"});
     }
