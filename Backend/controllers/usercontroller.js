@@ -136,7 +136,7 @@ exports.getCount = async(req,res)=>{
 exports.filterbyStatus = async(req,res)=>{
     let msg = req.params['msg'];
     const pageNumber = req.params['page']; // Change this to the desired page number
-    console.log(msg,pageNumber)
+    // console.log(msg,pageNumber)
     const pageSize = 100; // Change this to the desired page size
 
     // Calculate the offset based on the page number and page size

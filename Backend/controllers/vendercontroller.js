@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken")
 
 exports.createVender = async (req, res) => {
     let body = req.body;
-    console.log(body)
+    // console.log(body)
     try {
      let vender =  await Vender.create(body);
       res.status(201).json(vender);
@@ -58,7 +58,7 @@ exports.validateOTP = async(req,res) => {
    let venderData = await Vender.findOne({ where : { id : id } });
     try {
      if(venderData.otp == reqotp){
-         const token = jwt.sign({userid:id},process.env.KEY);
+         const token = jwt.sign({userid:id},"WITHIYC");
          res.status(200).json({ "Access_Token":token , vender : {"name" : venderData.name , "number" : venderData.number , "role" : venderData.role}})
      }else{
         res.status(400).json({message : "wrong otp entered"});
@@ -99,6 +99,7 @@ exports.validateOTP = async(req,res) => {
         }
         
     } catch (error) {
+        // console.log(error)
         res.status(500).json({message : "Something went wrong in the vender delete route"});
     }
  };
@@ -117,6 +118,7 @@ exports.validateOTP = async(req,res) => {
  exports.getallVender = async (req,res) =>{
     try {
         let vender = await Vender.findAndCountAll();
+        // console.log(vender)
 
         res.status(201).json(vender.rows);
 
