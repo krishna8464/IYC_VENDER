@@ -23,7 +23,7 @@ exports.getOTP = async(req,res) => {
     try {
         let venderData = await Vender.findOne({ where : { number : number } });
         let body = [venderData];
-        console.log(venderData.status);
+        // console.log(venderData.status);
         if(venderData.status === "deactivate"){
             res.status(201).json({"message" : "Vender is not active"})
         }else{
