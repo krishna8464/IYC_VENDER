@@ -252,6 +252,7 @@ exports.vendernameASC = async (req,res) => {
 exports.findVender = async (req,res)=>{
     const key = req.params['key']
     const value = req.params['value']
+    console.log(key,value)
     try {
         const lowerCaseValue = value.toLowerCase(); // Convert the query value to lowercase
 
@@ -261,7 +262,8 @@ exports.findVender = async (req,res)=>{
         res.status(200).json(vender);
         
     } catch (error) {
-        res.status(500).json({message : "Some thing went wrong in the users delete route"});
+        console.log(error)
+        res.status(500).json({message : "Some thing went wrong in the users search route"});
     }
 }
 
