@@ -32,6 +32,10 @@ const Vender=sequelize.define("vender",{
         type: DataTypes.STRING,
         defaultValue: 'active', // Set the default value to 'active'
     },
+    history: {
+        type: DataTypes.JSON, 
+        defaultValue: [], // Default value is an empty array
+      },
 });
 
 sequelize.sync()
