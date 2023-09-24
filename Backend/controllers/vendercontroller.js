@@ -628,6 +628,7 @@ exports.getassignedaverifiedUsers = async (req, res) => {
 
 exports.getassignedallUsers = async (req,res) => {
     ID = req.body.venderId;
+    // sdfasdfasdfsdf
     try {
         const users = await Users.findAll({
             where: {
