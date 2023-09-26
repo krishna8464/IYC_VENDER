@@ -41,29 +41,7 @@ exports.updatebyId = async(req,res)=>{
 
         if(updated[0]==1){
             let user = await Users.findOne({ where : { id : ID } });
-            if(user.status === "verified"){
-                const incrementValue = 1
-                const updateQuery = {
-                    count: sequelize.literal(`count + ${incrementValue}`), 
-                  };
-                  const [updatedRows] = await Vender.update(updateQuery, { where: { id : venderid} });
-                  if(updatedRows > 0){
-                    res.status(200).json (user);
-                  }else{
-                    res.status(400).json({message : "No one present with the id"});
-                  }
-            }else{
-                const incrementValue = -1
-                const updateQuery = {
-                    count: sequelize.literal(`count + ${incrementValue}`), 
-                  };
-                  const [updatedRows] = await Vender.update(updateQuery, { where: { id : venderid} });
-                  if(updatedRows > 0){
-                    res.status(200).json (user);
-                  }else{
-                    res.status(400).json({message : "No one present with the id"});
-                  }
-            }
+            res.status(200).json (user);
         }else{
             res.status(400).json({message : "No one present with the id"});
         }

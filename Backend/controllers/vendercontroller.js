@@ -3,6 +3,7 @@ const { Vender } = require("../models/venderModel");
 const { Tocken } = require("../models/tockenModel");
 const { Users } = require("../models/userModel");
 const { sequelize } = require("../config/db");
+const { Sequelize, DataTypes, Op } = require('sequelize');
 
 const axios =  require("axios")
 
@@ -206,11 +207,51 @@ exports.getallVender = async (req, res) => {
   }
 };
 
+
+exports.getWorkers = async (req,res) => {
+  try {
+    const vendors = await Vender.findAll({
+      where: {
+        role: 'worker',
+      },
+    });
+    res.status(200).send(vendors);
+  } catch (error) {
+    res.status(500).json({ message: "something went wrong with the route" });
+  }
+}
+
+exports.getInspectors = async (req,res) => {
+  try {
+    const vendors = await Vender.findAll({
+      where: {
+        role: 'inspector',
+      },
+    });
+    res.status(200).send(vendors);
+  } catch (error) {
+    res.status(500).json({ message: "something went wrong with the route" });
+  }
+}
+
+
 exports.getcoutallVender = async (req, res) => {
   try {
-    let count = await Vender.count();
-    res.status(200).json({ count: count });
+    console.log(1)
+    let vendercount = await Vender.count();
+    const workerVenders = await Vender.count({
+      where: {
+        role: 'worker',
+      },
+    });
+    const inspectorVenders = await Vender.count({
+      where: {
+        role: 'inspector',
+      },
+    });
+    res.status(200).json({ vendercount: vendercount , workercount : workerVenders , inspectorcount : inspectorVenders});
   } catch (error) {
+    console.log(error)
     res
       .status(500)
       .json({ message: "Something went wrong in the vender getcount route" });
@@ -335,6 +376,71 @@ exports.vendernameASC = async (req, res) => {
   }
 };
 
+exports.workergetASC = async (req,res) => {
+  try {
+    const workerVendors = await Vender.findAll({
+      where: {
+        role: 'worker',
+      },
+      order: [['name', 'ASC']], // Order by 'name' in ascending order
+    });
+    res.status(200).send(workerVendors);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong in the vender ASC route" });
+  }
+};
+
+
+exports.workergetDESC = async (req,res) => {
+  try {
+    const workerVendors = await Vender.findAll({
+      where: {
+        role: 'worker',
+      },
+      order: [['name', 'DESC']], // Order by 'name' in ascending order
+    });
+    res.status(200).send(workerVendors);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong in the vender ASC route" });
+  }
+};
+
+exports.inspectorgetASC = async (req,res) => {
+  try {
+    const inspectorVendors = await Vender.findAll({
+      where: {
+        role: 'inspector',
+      },
+      order: [['name', 'ASC']], // Order by 'name' in ascending order
+    });
+    res.status(200).send(inspectorVendors);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong in the vender ASC route" });
+  }
+};
+
+exports.inspectorgetDESC = async (req,res) => {
+  try {
+    const inspectorVendors = await Vender.findAll({
+      where: {
+        role: 'inspector',
+      },
+      order: [['name', 'DESC']], // Order by 'name' in ascending order
+    });
+    res.status(200).send(inspectorVendors);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong in the vender ASC route" });
+  }
+}
+
 exports.findVender = async (req, res) => {
   const key = req.params["key"];
   const value = req.params["value"];
@@ -402,82 +508,131 @@ exports.assignVender = async (req, res) => {
   }
 };
 
-exports.assignWork = async (req, res) => {
+exports.assignWorker = async (req, res) => {
   let adminId = req.body.venderId
   const venderid = req.params["venderid"];
   const recordcount = Number(req.params["recordcount"]);
   // console.log(venderid,recordcount)
   try {
-    const [updatedRowCount] = await Users.update(
-      { venderID: venderid }, // Set the new venderID value here
-      {
-        where: {
-          status: "not_verified",
-          venderID: 0,
-        },
-        limit: recordcount, // Limit the number of records to update
-      }
-    );
 
-    const vender = await Vender.findByPk(venderid);
-    const newHistoryEntry = {
-      adminId : adminId,
-      action: "assigned",
-      date: new Date().toISOString().slice(0, 10), // Current date in 'YYYY-MM-DD' format
-      time: new Date().toISOString().slice(11, 19), // Current time in 'HH:MM:SS' format
-      recordcount: recordcount,
-    };
-
-    vender.history.push(newHistoryEntry);
-    //   console.log(vender.history)
-    updateQuery = { history: vender.history };
-    //   console.log(updateQuery)
-    const [updatedRows] = await Vender.update(updateQuery, {
-      where: { id: venderid },
+    const count = await Users.count({
+      where: {
+        venderStatus: '',
+        venderID: 0,
+      },
     });
 
-    res.status(200).send({});
+    if(count >= recordcount){
+      const vendor = await Vender.findOne({
+        where: {
+          id: venderid,
+          role: "worker",
+        },
+      });
+  
+      if(vendor){
+        const [updatedRowCount] = await Users.update(
+          { venderID: venderid }, // Set the new venderID value here
+          {
+            where: {
+              venderStatus: "",
+              venderID: 0,
+            },
+            limit: recordcount, // Limit the number of records to update
+          }
+        );
+        const vender = await Vender.findByPk(venderid);
+        const newHistoryEntry = {
+          adminId : adminId,
+          action: "assigned",
+          date: new Date().toISOString().slice(0, 10), // Current date in 'YYYY-MM-DD' format
+          time: new Date().toISOString().slice(11, 19), // Current time in 'HH:MM:SS' format
+          recordcount: recordcount,
+        };
+        vender.history.push(newHistoryEntry);
+        updateQuery = { history: vender.history };
+        const [updatedRows] = await Vender.update(updateQuery, {
+          where: { id: venderid },
+        });
+        res.status(200).send({});
+      }else{
+        res
+        .status(400)
+        .json({ message: "There is no vender with this id or is not a worker" });
+      }
+    }else{
+      res
+      .status(400)
+      .json({ message: `There are only ${count} records left to assign` });
+    }
   } catch (error) {
-    // console.log(error)
     res
       .status(500)
       .json({ message: "something went wrong with the assignwork route" });
   }
 };
 
-exports.releaveVender = async (req, res) => {
+
+
+exports.releaveWorker = async (req, res) => {
   let adminId = req.body.venderId
   const venderid = req.params["venderid"];
-  console.log(venderid);
+  // console.log(venderid);
   try {
-    const [updatedRowCount] = await Users.update(
-      { venderID: 0 }, // Set the new venderID value here
-      {
-        where: {
-          status: "not_verified",
-          venderID: venderid,
-        },
-      }
-    );
-
-    const vender = await Vender.findByPk(venderid);
-    const newHistoryEntry = {
-      adimId : adminId,
-      action: "released",
-      date: new Date().toISOString().slice(0, 10), // Current date in 'YYYY-MM-DD' format
-      time: new Date().toISOString().slice(11, 19), // Current time in 'HH:MM:SS' format
-      recordcount: updatedRowCount,
-    };
-
-    vender.history.push(newHistoryEntry);
-    //   console.log(vender.history)
-    updateQuery = { history: vender.history };
-    //   console.log(updateQuery)
-    const [updatedRows] = await Vender.update(updateQuery, {
-      where: { id: venderid },
+    const count = await Users.count({
+      where: {
+        venderStatus: '',
+        venderID: venderid,
+      },
     });
+      const vendor = await Vender.findOne({
+        where: {
+          id: venderid,
+          role: "worker",
+        },
+      });
+  
+      if(vendor){
+        if(count == 0){
+          res.status(400).send({"message" : "There are no records to realeav"});
+        }else{
+          const [updatedRowCount] = await Users.update(
+            { venderID: 0 }, // Set the new venderID value here
+            {
+              where: {
+                venderStatus: "",
+                venderID: venderid,
+              },
+            }
+          );
+      
+          const vender = await Vender.findByPk(venderid);
+          const newHistoryEntry = {
+            adimId : adminId,
+            action: "released",
+            date: new Date().toISOString().slice(0, 10), // Current date in 'YYYY-MM-DD' format
+            time: new Date().toISOString().slice(11, 19), // Current time in 'HH:MM:SS' format
+            recordcount: updatedRowCount,
+          };
+      
+          vender.history.push(newHistoryEntry);
+          //   console.log(vender.history)
+          updateQuery = { history: vender.history };
+          //   console.log(updateQuery)
+          const [updatedRows] = await Vender.update(updateQuery, {
+            where: { id: venderid },
+          });
+      
+          res.status(200).send({releavecount : count});
 
-    res.status(200).send({});
+        }
+      }else{
+        res
+        .status(400)
+        .json({ message: "There is no vender with this id or is not a worker" });
+      }
+    
+    
   } catch (error) {
     res
       .status(500)
@@ -485,92 +640,394 @@ exports.releaveVender = async (req, res) => {
   }
 };
 
-exports.getStatisticsbyid = async (req, res) => {
+
+
+exports.assignInspector = async (req, res) => {
+  let adminId = req.body.venderId
   const venderid = req.params["venderid"];
-  // console.log(venderid)
+  const recordcount = Number(req.params["recordcount"]);
   try {
-    const results = await Users.findAll({
-      attributes: ["status", [sequelize.fn("COUNT", "status"), "count"]],
+    const vendor = await Vender.findOne({
       where: {
-        venderID: venderid,
+        id: venderid,
+        role: "inspector",
       },
-      group: ["status"],
     });
-    if(results.length == 0){
-        res.status(200).send({"verifiedcount" : 0,"not_verifiedcount" : 0});
-    }else if(results.length == 1){
-        console.log(results)
-        let status = results[0].status
-        let count = results[0].dataValues.count
-        if(status =="verified"){
-            res.status(200).send({"verifiedcount" : count,"not_verifiedcount" : 0});
-        }else{
-            res.status(200).send({"verifiedcount" : 0,"not_verifiedcount" : count});
-        }
+    if(vendor){
+      const count = await Users.count({
+        where: {
+          status: "not_verified",
+          venderStatus: {
+            [Op.in]: ['onhold', 'reject', 'inprocess'],
+          },
+          inspectorId: 0,
+        },
+      });
+      if(count >= recordcount){
+        const [updatedRowCount] = await Users.update(
+          { inspectorId: venderid }, // Set the new venderID value here
+          {
+            where: {
+              status: "not_verified",
+              inspectorId: 0,
+              venderStatus: {
+                [Op.in]: ['onhold', 'reject', 'inprocess'],
+              },
+            },
+            limit: recordcount, // Limit the number of records to update
+          }
+        );
+    
+        const vender = await Vender.findByPk(venderid);
+        const newHistoryEntry = {
+          adminId : adminId,
+          action: "assigned",
+          date: new Date().toISOString().slice(0, 10), // Current date in 'YYYY-MM-DD' format
+          time: new Date().toISOString().slice(11, 19), // Current time in 'HH:MM:SS' format
+          recordcount: recordcount,
+        };
+        vender.history.push(newHistoryEntry);
+        updateQuery = { history: vender.history };
+        const [updatedRows] = await Vender.update(updateQuery, {
+          where: { id: venderid },
+        });
+        res.status(200).send({});
+      }else{
+        res
+      .status(400)
+      .json({ message: `There are only ${count} records left to assign` });
+
+      }
     }else{
-        // let user1 = results[0]
-        // console.log(user1.dataValues.count)
-        let count1 = results[0].dataValues.count
-        let count2 = results[1].dataValues.count
-        res.status(200).send({"verifiedcount" : count1,"not_verifiedcount" : count2});
+      res
+      .status(400)
+      .json({ message: "There is no vender with this id or he is not an inspector" });
     }
+   
   } catch (error) {
-    // console.log(error)
+    console.log(error)
     res
       .status(500)
-      .json({
-        message: "something went wrong with the getStatisticsbyid route",
-      });
+      .json({ message: "something went wrong with the assigninspector route" });
   }
 };
 
-exports.getStatisticsbyauth = async (req, res) => {
-  ID = req.body.venderId;
+exports.releaveInspector = async (req, res) => {
+  let adminId = req.body.venderId
+  const venderid = req.params["venderid"];
+  console.log(venderid);
   try {
-    const results = await Users.findAll({
-      attributes: ["status", [sequelize.fn("COUNT", "status"), "count"]],
+    const vendor = await Vender.findOne({
       where: {
-        venderID: ID,
+        id: venderid,
+        role: "inspector",
       },
-      group: ["status"],
     });
-    if(results.length == 0){
-        res.status(200).send({"verifiedcount" : 0,"not_verifiedcount" : 0});
-    }else if(results.length == 1){
-        console.log(results)
-        let status = results[0].status
-        let count = results[0].dataValues.count
-        if(status =="verified"){
-            res.status(200).send({"verifiedcount" : count,"not_verifiedcount" : 0});
-        }else{
-            res.status(200).send({"verifiedcount" : 0,"not_verifiedcount" : count});
-        }
+    const count = await Users.count({
+      where: {
+        status: "not_verified",
+        inspectorId : venderid,
+      },
+    });
+    if(vendor){
+      if(count == 0){
+        res.status(400).send({"message" : "There are no records to realeav"})
+      }else{
+        const [updatedRowCount] = await Users.update(
+          { inspectorId: 0 }, // Set the new venderID value here
+          {
+            where: {
+              status: "not_verified",
+              inspectorId : venderid,
+            },
+          }
+        );
+    
+        const vender = await Vender.findByPk(venderid);
+        const newHistoryEntry = {
+          adimId : adminId,
+          action: "released",
+          date: new Date().toISOString().slice(0, 10), // Current date in 'YYYY-MM-DD' format
+          time: new Date().toISOString().slice(11, 19), // Current time in 'HH:MM:SS' format
+          recordcount: updatedRowCount,
+        };
+    
+        vender.history.push(newHistoryEntry);
+        //   console.log(vender.history)
+        updateQuery = { history: vender.history };
+        //   console.log(updateQuery)
+        const [updatedRows] = await Vender.update(updateQuery, {
+          where: { id: venderid },
+        });
+    
+        res.status(200).send({releavecount : count});
+      }
+
     }else{
-        // let user1 = results[0]
-        // console.log(user1.dataValues.count)
-        let count1 = results[0].dataValues.count
-        let count2 = results[1].dataValues.count
-        res.status(200).send({"verifiedcount" : count1,"not_verifiedcount" : count2});
+      res
+        .status(400)
+        .json({ message: "There is no vender with this id or is not a inspector" });
     }
   } catch (error) {
-    // console.log(error)
     res
       .status(500)
-      .json({
-        message: "something went wrong with the getStatisticsbyid route",
-      });
+      .json({ message: "something went wrong with the releavevender route" });
   }
 };
 
-exports.getcountofnotassignedUsers = async (req, res) => {
+// exports.getStatisticsbyid = async (req, res) => {
+//   const venderid = req.params["venderid"];
+//   // console.log(venderid)
+//   try {
+//     const results = await Users.findAll({
+//       attributes: ["status", [sequelize.fn("COUNT", "status"), "count"]],
+//       where: {
+//         venderID: venderid,
+//       },
+//       group: ["status"],
+//     });
+//     console.log(results)
+//     if(results.length == 0){
+//         res.status(200).send({"verifiedcount" : 0,"not_verifiedcount" : 0});
+//     }else if(results.length == 1){
+//         console.log(results)
+//         let status = results[0].status
+//         let count = results[0].dataValues.count
+//         if(status =="verified"){
+//             res.status(200).send({"verifiedcount" : count,"not_verifiedcount" : 0});
+//         }else{
+//             res.status(200).send({"verifiedcount" : 0,"not_verifiedcount" : count});
+//         }
+//     }else{
+//         // let user1 = results[0]
+//         // console.log(user1.dataValues.count)
+//         let count1 = results[0].dataValues.count
+//         let count2 = results[1].dataValues.count
+//         res.status(200).send({"verifiedcount" : count1,"not_verifiedcount" : count2});
+//     }
+//   } catch (error) {
+//     // console.log(error)
+//     res
+//       .status(500)
+//       .json({
+//         message: "something went wrong with the getStatisticsbyid route",
+//       });
+//   }
+// };
+
+// exports.getStatisticsbyauth = async (req, res) => {
+//   ID = req.body.venderId;
+//   try {
+//     const results = await Users.findAll({
+//       attributes: ["status", [sequelize.fn("COUNT", "status"), "count"]],
+//       where: {
+//         venderID: ID,
+//       },
+//       group: ["status"],
+//     });
+//     if(results.length == 0){
+//         res.status(200).send({"verifiedcount" : 0,"not_verifiedcount" : 0});
+//     }else if(results.length == 1){
+//         console.log(results)
+//         let status = results[0].status
+//         let count = results[0].dataValues.count
+//         if(status =="verified"){
+//             res.status(200).send({"verifiedcount" : count,"not_verifiedcount" : 0});
+//         }else{
+//             res.status(200).send({"verifiedcount" : 0,"not_verifiedcount" : count});
+//         }
+//     }else{
+//         // let user1 = results[0]
+//         // console.log(user1.dataValues.count)
+//         let count1 = results[0].dataValues.count
+//         let count2 = results[1].dataValues.count
+//         res.status(200).send({"verifiedcount" : count1,"not_verifiedcount" : count2});
+//     }
+//   } catch (error) {
+//     // console.log(error)
+//     res
+//       .status(500)
+//       .json({
+//         message: "something went wrong with the getStatisticsbyid route",
+//       });
+//   }
+// };
+
+
+exports.getStatisticsbyworkerid = async (req,res) => {
+  const workerid = req.params["workerid"];
+try {
+  const countWithStatusonhold = await Users.count({
+    where: {
+      venderID: workerid,
+      venderStatus: "onhold"
+    },
+  });
+  const countWithStatusinprocess = await Users.count({
+    where: {
+      venderID: workerid,
+      venderStatus: "inprocess"
+    },
+  });
+  const countWithStatusreject = await Users.count({
+    where: {
+      venderID: workerid,
+      venderStatus: "reject"
+    },
+  });
+  let countWithStatus = countWithStatusonhold+countWithStatusinprocess+countWithStatusreject
+  console.log(countWithStatus)
+  const countWithEmptyStatus = await Users.count({
+    where: {
+      venderID: workerid,
+      venderStatus: '',
+    },
+  });
+  res.status(200).send({"onholdcount": countWithStatusonhold, "onprocesscount" : countWithStatusinprocess , "rejectcount" : countWithStatusreject ,"emptycount" : countWithEmptyStatus})
+} catch (error) {
+  console.log(error)
+  res
+  .status(500)
+  .json({ message: "something went wrong with the getStatisticsbyworkerid route" });
+}
+};
+
+exports.getStatisticsbyworkerauth = async (req,res) => {
+  const workerid = req.body.venderId
+try {
+  const countWithStatusonhold = await Users.count({
+    where: {
+      venderID: workerid,
+      venderStatus: "onhold"
+    },
+  });
+  const countWithStatusinprocess = await Users.count({
+    where: {
+      venderID: workerid,
+      venderStatus: "inprocess"
+    },
+  });
+  const countWithStatusreject = await Users.count({
+    where: {
+      venderID: workerid,
+      venderStatus: "reject"
+    },
+  });
+  let countWithStatus = countWithStatusonhold+countWithStatusinprocess+countWithStatusreject
+  // console.log(countWithStatus)
+  const countWithEmptyStatus = await Users.count({
+    where: {
+      venderID: workerid,
+      venderStatus: '',
+    },
+  });
+  res.status(200).send({"onholdcount": countWithStatusonhold, "onprocesscount" : countWithStatusinprocess , "rejectcount" : countWithStatusreject ,"emptycount" : countWithEmptyStatus})
+} catch (error) {
+  console.log(error)
+  res
+  .status(500)
+  .json({ message: "something went wrong with the getStatisticsbyworkerid route" });
+}
+}
+
+exports.getStatisticsbyinspectorid = async (req,res) => {
+  const workerid = req.params["inspectorid"];
+try {
+  const countWithStatusverified = await Users.count({
+    where: {
+      inspectorId: workerid,
+      status: "verified"
+    },
+  });
+  const countWithStatusverification_failed = await Users.count({
+    where: {
+      inspectorId: workerid,
+      status: "verification_failed"
+    },
+  });
+  let countWithStatus = countWithStatusverified+countWithStatusverification_failed
+  console.log(countWithStatus)
+  const countWithEmptyStatus = await Users.count({
+    where: {
+      inspectorId: workerid,
+      status: 'not_verified',
+    },
+  });
+  res.status(200).send({"verifiedcount" : countWithStatusverified ,  "verification_failedcount" : countWithStatusverification_failed , "empetycount" : countWithEmptyStatus})
+} catch (error) {
+  console.log(error)
+  res
+  .status(500)
+  .json({ message: "something went wrong with the getStatisticsbyworkerid route" });
+}
+};
+
+
+exports.getStatisticsbyinspectorauth = async (req,res) => {
+  const workerid = req.body.venderId
+try {
+  const countWithStatusverified = await Users.count({
+    where: {
+      inspectorId: workerid,
+      status: "verified"
+    },
+  });
+  const countWithStatusverification_failed = await Users.count({
+    where: {
+      inspectorId: workerid,
+      status: "verification_failed"
+    },
+  });
+  let countWithStatus = countWithStatusverified+countWithStatusverification_failed
+  console.log(countWithStatus)
+  const countWithEmptyStatus = await Users.count({
+    where: {
+      inspectorId: workerid,
+      status: 'not_verified',
+    },
+  });
+  res.status(200).send({"verifiedcount" : countWithStatusverified ,  "verification_failedcount" : countWithStatusverification_failed , "empetycount" : countWithEmptyStatus})
+} catch (error) {
+  console.log(error)
+  res
+  .status(500)
+  .json({ message: "something went wrong with the getStatisticsbyworkerid route" });
+}
+};
+
+
+
+
+exports.getcountofnotassignedUserstoworker = async (req, res) => {
   try {
     const count = await Users.count({
       where: {
+        venderStatus: '',
         venderID: 0,
-        status: "not_verified",
       },
     });
+    res.status(200).send({ count: count });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message:
+          "something went wrong with the getcountofnotassignedUsers route",
+      });
+  }
+};
 
+exports.getcountofnotassignedUserstoinspectors = async (req,res) =>{
+  try {
+    const count = await Users.count({
+      where: {
+        status: "not_verified",
+        venderStatus: {
+          [Op.in]: ['onhold', 'reject', 'inprocess'],
+        },
+        inspectorId: 0,
+      },
+    });
     res.status(200).send({ count: count });
   } catch (error) {
     res
@@ -583,12 +1040,96 @@ exports.getcountofnotassignedUsers = async (req, res) => {
 };
 
 
-exports.getassignedanotverifiedUsers = async (req, res) => {
+exports.getworkerassignedallUsers = async (req,res) => {
+  ID = req.body.venderId
+  try {
+    const users = await Users.findAll({
+      where: {
+        venderID: ID,
+      },
+    });
+    res.status(200).send(users)
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the getworkerassignedallUsers route",
+    });
+  }
+};
+
+
+exports.getworkerverifiedUsers = async (req,res) => {
+  ID = req.body.venderId;
+  try {
+    const users = await Users.findAll({
+      where: {
+        venderID: ID,
+        venderStatus: {
+          [Op.in]: ['inprocess', 'onhold', 'reject'],
+        },
+      },
+    });
+    res.status(200).send(users)
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the getworkerverifiedUsers route",
+    });
+  }
+}
+
+exports.getworkernotverifiedUsers = async (req,res) => {
+  ID = req.body.venderId;
+  try {
+    const users = await Users.findAll({
+      where: {
+        venderID: ID,
+        venderStatus: "",
+      },
+    });
+    res.status(200).send(users)
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the getworkerverifiedUsers route",
+    });
+  }
+}
+
+
+exports.getinspectorallassignedUsers = async (req, res) => {
     ID = req.body.venderId;
     try {
         const users = await Users.findAll({
             where: {
-              venderID: ID,
+              inspectorId: ID,
+            },
+          });
+      
+          res.status(200).send(users)
+    } catch (error) {
+        res
+      .status(500)
+      .json({
+        message:
+          "something went wrong with the getinspectorallassignedUsers route",
+      });
+    }
+};
+
+
+exports.getinspectornotverifiedUsers = async (req, res) => {
+    ID = req.body.venderId;
+    try {
+        const users = await Users.findAll({
+            where: {
+              inspectorId: ID,
               status: 'not_verified',
             },
           });
@@ -599,40 +1140,21 @@ exports.getassignedanotverifiedUsers = async (req, res) => {
       .status(500)
       .json({
         message:
-          "something went wrong with the getcountofnotassignedUsers route",
+          "something went wrong with the getinspectornotverifiedUsers route",
       });
     }
 };
 
-
-exports.getassignedaverifiedUsers = async (req, res) => {
-    ID = req.body.venderId;
-    try {
-        const users = await Users.findAll({
-            where: {
-              venderID: ID,
-              status: 'verified',
-            },
-          });
-      
-          res.status(200).send(users)
-    } catch (error) {
-        res
-      .status(500)
-      .json({
-        message:
-          "something went wrong with the getcountofnotassignedUsers route",
-      });
-    }
-};
-
-exports.getassignedallUsers = async (req,res) => {
+exports.getinspectorverifiedUsers = async (req,res) => {
     ID = req.body.venderId;
     // sdfasdfasdfsdf
     try {
         const users = await Users.findAll({
             where: {
-              venderID: ID,
+              inspectorId: ID,
+              status: {
+                [Op.in]: ['verified', 'verification_failed'],
+              },
             },
           });
       res.status(200).send(users)
@@ -641,7 +1163,7 @@ exports.getassignedallUsers = async (req,res) => {
       .status(500)
       .json({
         message:
-          "something went wrong with the getcountofnotassignedUsers route",
+          "something went wrong with the getinspectorverifiedUsers route",
       });
     }
 }
