@@ -7,7 +7,49 @@ const jwt = require("jsonwebtoken")
 const { Vender } = require("../models/venderModel");
 const { logger } = require("../middleware/logger");
 const { authMiddleware } = require("../middleware/auth");
-const { createVender , getOTP , validateOTP , updateVenderbyid , updateVenderbyauth , deleteVender , getoneVender , getallVender , getcoutallVender , venderLogout , venderincCount , venderdecCount , venderStatistics , vendertopScore , venderscoreASC , venderscoreDESC , vendernameASC , findVender , assignVender , assignWork , releaveVender , getStatisticsbyid , getStatisticsbyauth , getcountofnotassignedUsers , getassignedanotverifiedUsers ,getassignedaverifiedUsers , getassignedallUsers } = require("../controllers/vendercontroller")
+const { 
+    createVender , 
+    getOTP , 
+    validateOTP , 
+    updateVenderbyid , 
+    updateVenderbyauth , 
+    deleteVender , 
+    getoneVender , 
+    getallVender , 
+    getcoutallVender , 
+    venderLogout , 
+    venderincCount ,
+    venderdecCount ,
+    venderStatistics , 
+    vendertopScore , 
+    venderscoreASC , 
+    venderscoreDESC , 
+    vendernameASC , 
+    findVender , 
+    assignVender , 
+    assignWorker , 
+    releaveWorker , 
+    assignInspector , 
+    releaveInspector , 
+    getcountofnotassignedUserstoworker , 
+    getcountofnotassignedUserstoinspectors ,
+    getinspectorallassignedUsers , 
+    getinspectornotverifiedUsers , 
+    getinspectorverifiedUsers , 
+    getWorkers , 
+    getInspectors , 
+    workergetASC , 
+    inspectorgetASC , 
+    workergetDESC , 
+    inspectorgetDESC , 
+    getStatisticsbyworkerid , 
+    getStatisticsbyworkerauth , 
+    getStatisticsbyinspectorid ,
+    getStatisticsbyinspectorauth , 
+    getworkerassignedallUsers ,
+    getworkerverifiedUsers ,
+    getworkernotverifiedUsers
+} = require("../controllers/vendercontroller");
 
 
 Venderroute.post("/create", logger , createVender );
@@ -48,20 +90,52 @@ Venderroute.get("/search/:key/:value", logger, authMiddleware , findVender );
 
 Venderroute.post("/assignVender/:venderid/:userid", logger , assignVender);
 
-Venderroute.post("/assignWork/:venderid/:recordcount", logger , authMiddleware , assignWork);
+Venderroute.post("/assignWorker/:venderid/:recordcount", logger , authMiddleware , assignWorker);
 
-Venderroute.post("/releaveVender/:venderid", logger , authMiddleware , releaveVender);
+Venderroute.post("/releaveworker/:venderid", logger , authMiddleware , releaveWorker);
 
-Venderroute.get("/getStatisticsbyid/:venderid", logger , getStatisticsbyid);
+Venderroute.post("/assignInspector/:venderid/:recordcount" , logger , authMiddleware , assignInspector );
 
-Venderroute.get("/getStatisticsbyauth" , logger , authMiddleware , getStatisticsbyauth);
+Venderroute.post("/releaveInspector/:venderid", logger , authMiddleware , releaveInspector);
 
-Venderroute.get("/getcountofnotassignedUsers", logger ,getcountofnotassignedUsers);
+// Venderroute.get("/getStatisticsbyid/:venderid", logger , getStatisticsbyid);
 
-Venderroute.get("/getassignedanotverifiedUsers" , logger , authMiddleware , getassignedanotverifiedUsers);
+// Venderroute.get("/getStatisticsbyauth" , logger , authMiddleware , getStatisticsbyauth);
 
-Venderroute.get("/getassignedaverifiedUsers" , logger , authMiddleware , getassignedaverifiedUsers);
+Venderroute.get("/getcountofnotassignedUserstoworker", logger ,getcountofnotassignedUserstoworker);
 
-Venderroute.get("/getassignedallUsers" , logger , authMiddleware , getassignedallUsers);
+Venderroute.get("/getcountofnotassignedUserstoinspectors", logger , getcountofnotassignedUserstoinspectors)
+
+Venderroute.get("/getWorkers" , logger , getWorkers);
+
+Venderroute.get("/getInspectors" , logger , getInspectors);
+
+Venderroute.get("/workergetASC" , logger , workergetASC);
+
+Venderroute.get("/workergetDESC" , logger , workergetDESC);
+
+Venderroute.get("/inspectorgetASC" , logger , inspectorgetASC);
+
+Venderroute.get("/inspectorgetDESC" , logger , inspectorgetDESC);
+
+Venderroute.get("/getStatisticsbyworkerid/:workerid", logger , getStatisticsbyworkerid);
+
+Venderroute.get("/getStatisticsbyworkerauth" , logger , authMiddleware , getStatisticsbyworkerauth);
+
+Venderroute.get("/getStatisticsbyinspectorid/:inspectorid", logger , getStatisticsbyinspectorid);
+
+Venderroute.get("/getStatisticsbyinspectorauth" , logger , authMiddleware , getStatisticsbyinspectorauth);
+
+Venderroute.get("/getworkerassignedallUsers" , logger , authMiddleware , getworkerassignedallUsers);
+
+Venderroute.get("/getworkerverifiedUsers" , logger , authMiddleware , getworkerverifiedUsers);
+
+Venderroute.get("/getworkernotverifiedUsers" , logger , authMiddleware , getworkernotverifiedUsers);
+
+Venderroute.get("/getinspectornotverifiedUsers" , logger , authMiddleware , getinspectornotverifiedUsers);
+
+Venderroute.get("/getinspectorverifiedUsers" , logger , authMiddleware , getinspectorverifiedUsers);
+
+Venderroute.get("/getinspectorallassignedUsers" , logger , authMiddleware , getinspectorallassignedUsers);
 
 module.exports = { Venderroute }

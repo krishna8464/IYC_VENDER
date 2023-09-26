@@ -57,12 +57,24 @@ const Users=sequelize.define("users",{
     },
     status: {
         type: DataTypes.STRING,
-        defaultValue: 'not_verified', // Set the default value to 'not_verified'
+        defaultValue: 'not_verified', // The default value to 'not_verified'
     },
     venderID: {
         type: DataTypes.INTEGER,
         defaultValue: 0 ,
-    }
+    },
+    venderStatus: {
+        type: DataTypes.STRING,
+        defaultValue: '', // Default value is an empty string
+    },
+    comment: {
+        type: DataTypes.STRING,
+        defaultValue: '', // Default value is an empty string
+    },
+    inspectorId: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0, // Default value is 0
+    },
 });
 
 sequelize.sync()
