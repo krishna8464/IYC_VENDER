@@ -657,9 +657,6 @@ exports.assignInspector = async (req, res) => {
       const count = await Users.count({
         where: {
           status: "not_verified",
-          venderStatus: {
-            [Op.in]: ['0', '1', '2' ,'3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9'],
-          },
           inspectorId: 0,
         },
       });
@@ -671,9 +668,6 @@ exports.assignInspector = async (req, res) => {
             where: {
               status: "not_verified",
               inspectorId: 0,
-              venderStatus: {
-                [Op.in]: ['0', '1', '2' ,'3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9'],
-              },
             },
             limit: recordcount, // Limit the number of records to update
           }
