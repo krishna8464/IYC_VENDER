@@ -5,7 +5,8 @@ const { sequelize } = require("../config/db");
 const Users=sequelize.define("users",{
     id:{
         type:DataTypes.INTEGER,
-        primaryKey:true
+        primaryKey:true,
+        autoIncrement:true
     },
     aggr_id:{
         type:DataTypes.BIGINT,
