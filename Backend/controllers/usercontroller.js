@@ -1,6 +1,7 @@
 const { Users } = require("../models/userModel");
 const { Vender } = require("../models/venderModel");
 const { sequelize } = require("../config/db");
+const { Op } = require('sequelize');
 
 exports.createUser = async (req,res)=>{
     let body = req.body;
@@ -102,7 +103,14 @@ exports.getuserbyId = async(req,res)=>{
 
 exports.getCount = async(req,res)=>{
     try {
-      const verifiedcount = await Users.count({ where: { status: "verified" },});
+      const verifiedcount = await Users.count({
+        where: {
+          [Op.or]: [
+            { status: 'verified' },
+            { status: 'verification_failed' },
+          ],
+        },
+      });
       const notverifiedcount = await Users.count({ where: { status: "not_verified" },});
       const totalCount = await Users.count();
           res.status(200).json({verifiedcount : verifiedcount , not_verifiedcount : notverifiedcount , totalCount : totalCount});
