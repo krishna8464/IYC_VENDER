@@ -658,11 +658,12 @@ exports.assignInspector = async (req, res) => {
         where: {
           status: "not_verified",
           venderStatus: {
-            [Op.in]: ['onhold', 'reject', 'inprocess'],
+            [Op.in]: ['0', '1', '2' ,'3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9'],
           },
           inspectorId: 0,
         },
       });
+      console.log(count)
       if(count >= recordcount){
         const [updatedRowCount] = await Users.update(
           { inspectorId: venderid }, // Set the new venderID value here
@@ -671,7 +672,7 @@ exports.assignInspector = async (req, res) => {
               status: "not_verified",
               inspectorId: 0,
               venderStatus: {
-                [Op.in]: ['onhold', 'reject', 'inprocess'],
+                [Op.in]: ['0', '1', '2' ,'3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9'],
               },
             },
             limit: recordcount, // Limit the number of records to update
@@ -1146,6 +1147,7 @@ exports.getinspectornotverifiedUsers = async (req, res) => {
 };
 
 exports.getinspectorverifiedUsers = async (req,res) => {
+  console.log("working")
     ID = req.body.venderId;
     // sdfasdfasdfsdf
     try {
