@@ -1153,7 +1153,7 @@ exports.getinspectorverifiedUsers = async (req,res) => {
             where: {
               inspectorId: ID,
               status: {
-                [Op.in]: ['verified', 'verification_failed'],
+                [Op.in]: ['verified', 'verificatcdion_failed'],
               },
             },
           });
