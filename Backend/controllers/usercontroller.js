@@ -42,6 +42,16 @@ exports.updatebyId = async(req,res)=>{
 
         if(updated[0]==1){
             let user = await Users.findOne({ where : { id : ID } });
+            console.log(user.status)
+            if(user.status === "verified" || user.status === "verification_failed"){
+                const incrementValue = 1;
+                const updateQuery = {
+                count: sequelize.literal(`count + ${incrementValue}`),
+                };
+                const [updatedRows] = await Vender.update(updateQuery, {
+                where: { id: venderid },
+                });
+            }
             res.status(200).json (user);
         }else{
             res.status(400).json({message : "No one present with the id"});
@@ -49,7 +59,7 @@ exports.updatebyId = async(req,res)=>{
     } catch (error) {
         res.status(500).json({message : "something went wrong with the route"});
     }
-}
+};
 
 // exports.updatebyId = async(req,res)=>{
 //     let ID = req.params['id']

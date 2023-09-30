@@ -517,8 +517,9 @@ exports.assignWorker = async (req, res) => {
 
     const count = await Users.count({
       where: {
-        venderStatus: '',
         venderID: 0,
+        venderStatus : '',
+        inspectorId : 0
       },
     });
 
@@ -535,7 +536,7 @@ exports.assignWorker = async (req, res) => {
           { venderID: venderid }, // Set the new venderID value here
           {
             where: {
-              venderStatus: "",
+              inspectorId : 0,
               venderID: 0,
             },
             limit: recordcount, // Limit the number of records to update
@@ -657,6 +658,9 @@ exports.assignInspector = async (req, res) => {
       const count = await Users.count({
         where: {
           status: "not_verified",
+          venderStatus: {
+            [Op.in]: ['0', '1', "2", '3', '4', '5', '6', '7', '8', '9', '10'],
+          },
           inspectorId: 0,
         },
       });
@@ -667,6 +671,9 @@ exports.assignInspector = async (req, res) => {
           {
             where: {
               status: "not_verified",
+              venderStatus: {
+                [Op.in]: ['0', '1', "2", '3', '4', '5', '6', '7', '8', '9', '10'],
+              },
               inspectorId: 0,
             },
             limit: recordcount, // Limit the number of records to update
@@ -997,8 +1004,9 @@ exports.getcountofnotassignedUserstoworker = async (req, res) => {
   try {
     const count = await Users.count({
       where: {
-        venderStatus: '',
         venderID: 0,
+        venderStatus : '',
+        inspectorId : 0
       },
     });
     res.status(200).send({ count: count });
@@ -1018,7 +1026,7 @@ exports.getcountofnotassignedUserstoinspectors = async (req,res) =>{
       where: {
         status: "not_verified",
         venderStatus: {
-          [Op.in]: ['onhold', 'reject', 'inprocess'],
+          [Op.in]: ['0', '1', "2", '3', '4', '5', '6', '7', '8', '9', '10'],
         },
         inspectorId: 0,
       },
