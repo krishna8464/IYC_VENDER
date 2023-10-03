@@ -48,7 +48,14 @@ const {
     getStatisticsbyinspectorauth , 
     getworkerassignedallUsers ,
     getworkerverifiedUsers ,
-    getworkernotverifiedUsers
+    getworkernotverifiedUsers,
+    recordInspectorstatistics,
+    unassignedrecordstoInspector,
+    getverificationfailedRecords,
+    getverificationfailedRecordsbyauth,
+    inspectorReport ,
+    getverifiedrecordsReport,
+    getverificationfailedrecordsReport
 } = require("../controllers/vendercontroller");
 
 
@@ -137,5 +144,19 @@ Venderroute.get("/getinspectornotverifiedUsers" , logger , authMiddleware , geti
 Venderroute.get("/getinspectorverifiedUsers" , logger , authMiddleware , getinspectorverifiedUsers);
 
 Venderroute.get("/getinspectorallassignedUsers" , logger , authMiddleware , getinspectorallassignedUsers);
+
+Venderroute.get("/recordInspectorstatistics" , logger , recordInspectorstatistics);
+
+Venderroute.get("/unassignedrecordstoInspector/:page" , logger , unassignedrecordstoInspector);
+
+Venderroute.get("/getverificationfailedRecords" , logger , getverificationfailedRecords);
+
+Venderroute.get("/getverificationfailedRecordsbyauth" , logger , authMiddleware , getverificationfailedRecordsbyauth);
+
+Venderroute.get("/inspectorReport" , logger , inspectorReport);
+
+Venderroute.get("/getverifiedrecordsReport" , logger , getverifiedrecordsReport );
+
+Venderroute.get("/getverificationfailedrecordsReport" , logger , getverificationfailedrecordsReport);
 
 module.exports = { Venderroute }

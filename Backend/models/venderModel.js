@@ -2,6 +2,8 @@
 const DataTypes = require("sequelize");
 const { sequelize } = require("../config/db");
 
+const  Users  = require("./userModel")
+
 const Vender=sequelize.define("vender",{
     id:{
         type:DataTypes.INTEGER,
@@ -37,7 +39,6 @@ const Vender=sequelize.define("vender",{
         defaultValue: [], // Default value is an empty array
       },
 });
-
 sequelize.sync()
 .then(() => {
     console.log("Vender table Synced successfully")
