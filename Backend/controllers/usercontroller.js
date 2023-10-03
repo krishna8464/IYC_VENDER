@@ -160,7 +160,33 @@ exports.getallcount = async(req,res)=>{
     }
 }
 
+//todo
 exports.findUser = async (req,res)=>{
+    const key = req.params['key']
+    const value = req.params['value'];
+    const venderid = req.body.venderId
+    try {
+        const lowerCaseValue = value.toLowerCase(); // Convert the query value to lowercase
+
+        const user = await Users.findAll({
+            where: {
+              [Op.and]: [
+                sequelize.where(sequelize.fn('LOWER', sequelize.col(key)), lowerCaseValue),
+                { inspectorId: venderid }, // Add the condition for inspectorId = 2 here
+              ],
+            },
+          });
+        res.status(200).json(user);
+        
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({message : "Some thing went wrong in the users delete route"});
+    }
+};
+
+
+//todo
+exports.adminfindUser = async (req,res)=>{
     const key = req.params['key']
     const value = req.params['value']
     try {

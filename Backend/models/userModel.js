@@ -1,6 +1,7 @@
 
 const DataTypes = require("sequelize");
 const { sequelize } = require("../config/db");
+const { Vender } = require("./venderModel")
 
 const Users=sequelize.define("users",{
     id:{
@@ -29,7 +30,7 @@ const Users=sequelize.define("users",{
         allowNull:false
     },
     date_of_birth:{
-        type:DataTypes.DATE,
+        type:DataTypes.STRING,
         allowNull:false
     },
     id_type:{
@@ -76,7 +77,14 @@ const Users=sequelize.define("users",{
         type: DataTypes.INTEGER,
         defaultValue: 0, // Default value is 0
     },
+    vender_reason: {
+        type: DataTypes.STRING,
+        allowNull: true, // You can change this to false if it cannot be null
+        defaultValue: '', // Default value is an empty string
+      },    
 });
+
+Users.belongsTo(Vender, { foreignKey: 'inspectorId', as: 'VenderInfo' });
 
 sequelize.sync()
 .then(() => {

@@ -225,7 +225,9 @@ exports.getInspectors = async (req,res) => {
   try {
     const vendors = await Vender.findAll({
       where: {
-        role: 'inspector',
+        role: {
+          [Op.or]: ['admin', 'inspector'],
+        },
       },
     });
     res.status(200).send(vendors);
@@ -1171,3 +1173,277 @@ exports.getinspectorverifiedUsers = async (req,res) => {
       });
     }
 }
+
+
+//todo
+exports.recordInspectorstatistics = async (req,res) => {
+  try {
+    const totalrecordscount = await Users.count();
+    const unassignedinspectorcount = await Users.count({
+      where: {
+        status: "not_verified",
+        venderStatus: {
+          [Op.in]: ['0', '1', "2", '3', '4', '5', '6', '7', '8', '9', '10'],
+        },
+        inspectorId: 0,
+      },
+    });
+    const assignedinspectorcount = totalrecordscount-unassignedinspectorcount
+    res.status(200).send({unassignedinspectorcount,assignedinspectorcount,totalrecordscount});
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the recordInspectorstatistics route",
+    });
+  }
+};
+
+//todo
+exports.unassignedrecordstoInspector = async (req,res) => {
+  let page = req.params["page"];
+  const pageSize = 10
+  try {
+    const unassignedInspectors = await Users.findAll({
+      where: {
+        status: 'not_verified',
+        venderStatus: {
+          [Sequelize.Op.in]: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+        },
+        inspectorId: 0,
+      },
+      offset: (page - 1) * pageSize, // Calculate the offset based on page number
+      limit: pageSize, // Set the limit to the number of records per page
+    });
+  
+    
+    res.status(200).send(unassignedInspectors);
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the unassignedrecordstoInspector route",
+    });
+  }
+};
+
+//todo
+exports.getverificationfailedRecords = async (req,res) => {
+  try {
+    const verificationFailedUsers = await Users.findAll({
+      where: {
+        status: 'verification_failed',
+      },
+    });
+    res.status(200).send(verificationFailedUsers)
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the getverificationfailedrecords route",
+    });
+  }
+};
+
+//todo
+exports.getverificationfailedRecordsbyauth = async ( req,res) => {
+  let inspectorId = req.body.venderId;
+  try {
+    const verificationFailedUsers = await Users.findAll({
+      where: {
+        status: 'verification_failed',
+        inspectorId
+      },
+    });
+    res.status(200).send(verificationFailedUsers)
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the getverificationfailedrecords route",
+    });
+  }
+}
+
+//todo
+exports.inspectorReport = async (req,res) => {
+  try {
+  // Get all venders with the role "inspector"
+  const inspectors = await Vender.findAll({
+    where: {
+      role: 'inspector',
+    },
+  });
+  // Extract inspectorIds from the inspectors
+  const inspectorIds = inspectors.map((inspector) => inspector.id);
+
+    // Create an array to store inspector data
+    const inspectorData = [];
+
+     // Fetch and store data for each inspector
+  for (const inspector of inspectors) {
+    const inspectorId = inspector.id;
+    const inspectorName = inspector.name; // Replace with your inspector name field
+    const inspectorNumber = inspector.number; // Replace with your inspector number field
+
+    const verifiedCount = await Users.count({
+      where: {
+        inspectorId,
+        status: 'verified',
+      },
+    });
+
+    const failedCount = await Users.count({
+      where: {
+        inspectorId,
+        status: 'verification_failed',
+      },
+    });
+
+    const totalCount = await Users.count({
+      where: {
+        inspectorId,
+      },
+    });
+
+    inspectorData.push({
+      inspectorId,
+      inspectorName,
+      inspectorNumber,
+      verifiedCount,
+      verification_failedcount : failedCount,
+      totalcheckedCount : verifiedCount + failedCount,
+      totalassignedCount : totalCount,
+    });
+  }
+
+  res.status(200).send(inspectorData);
+
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the getverificationfailedrecords route",
+    });
+  }
+};
+
+//todo
+exports.getverifiedrecordsReport = async (req,res) => {
+  try {
+    const users = await Users.findAll({
+      where: {
+        status: 'verified', // Replace with your status condition
+      },
+      include: [
+        {
+          model: Vender,
+          as: 'VenderInfo', // Alias for the Vender association
+        },
+      ],
+    });
+
+    const resultArray = users.map((x) => {
+      const result = {
+      "id": x.id,
+      "firstName": x.first_name,
+      "lastName": x.last_name,
+      "relative_name": x.relative_name,
+		  "date_of_birth": x.date_of_birth,
+		  "id_type": x.id_type,
+		  "id_value": x.id_value,
+	  	"ID_FRONT": x.ID_FRONT,
+		  "ID_BACK": x.ID_BACK ,
+		  "PHOTO_LINK": x.PHOTO_LINK,
+		  "VIDEO": x.VIDEO,
+		  "status": x.status,
+	  	"venderID": x.venderID,
+	  	"venderStatus": x.venderStatus,
+      "vender_reason": x.vender_reason,
+	  	"comment": x.comment,
+		  "inspectorId": x.inspectorId,
+      };
+    
+      // Check if VenderInfo is not null
+      if (x.VenderInfo) {
+        result.inspectorName = x.VenderInfo.name;
+        // Add more properties from VenderInfo as needed
+      }
+    
+      return result;
+    });
+
+
+    res.status(200).send(resultArray)
+  } catch (error) {
+    console.log(error)
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the getverifiedrecordsReport route",
+    });
+  }
+}
+
+//todo
+exports.getverificationfailedrecordsReport = async (req,res) => {
+  try {
+    const users = await Users.findAll({
+      where: {
+        status: 'verification_failed', // Replace with your status condition
+      },
+      include: [
+        {
+          model: Vender,
+          as: 'VenderInfo', // Alias for the Vender association
+        },
+      ],
+    });
+
+    const resultArray = users.map((x) => {
+      const result = {
+      "id": x.id,
+      "firstName": x.first_name,
+      "lastName": x.last_name,
+      "relative_name": x.relative_name,
+		  "date_of_birth": x.date_of_birth,
+		  "id_type": x.id_type,
+		  "id_value": x.id_value,
+	  	"ID_FRONT": x.ID_FRONT,
+		  "ID_BACK": x.ID_BACK ,
+		  "PHOTO_LINK": x.PHOTO_LINK,
+		  "VIDEO": x.VIDEO,
+		  "status": x.status,
+	  	"venderID": x.venderID,
+	  	"venderStatus": x.venderStatus,
+      "vender_reason": x.vender_reason,
+	  	"comment": x.comment,
+		  "inspectorId": x.inspectorId,
+      };
+    
+      // Check if VenderInfo is not null
+      if (x.VenderInfo) {
+        result.inspectorName = x.VenderInfo.name;
+        // Add more properties from VenderInfo as needed
+      }
+      return result;
+    });
+    res.status(200).send(resultArray)
+  } catch (error) {
+    console.log(error)
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the getverifiedrecordsReport route",
+    });
+  }
+}
+
+

@@ -2,7 +2,7 @@ const express = require("express");
 const Userroute = express.Router();
 const { Users } = require("../models/userModel");
 const { logger } = require("../middleware/logger");
-const { createUser , getUsers , updatebyId , deletebyId , getuserbyId , getCount , filterbyStatus , getallcount , findUser } = require("../controllers/usercontroller");
+const { createUser , getUsers , updatebyId , deletebyId , getuserbyId , getCount , filterbyStatus , getallcount , findUser , adminfindUser } = require("../controllers/usercontroller");
 const { authMiddleware } = require("../middleware/auth")
 
 
@@ -27,7 +27,9 @@ Userroute.get("/filter/:msg/:page", logger, authMiddleware , filterbyStatus );
 
 Userroute.get("/getallcount", logger, authMiddleware , getallcount);
 
-Userroute.get("/search/:key/:value", logger, authMiddleware , findUser )
+Userroute.get("/search/:key/:value", logger, authMiddleware , findUser );
+
+Userroute.get("/adminfindUser/:key/:value" , logger , authMiddleware , adminfindUser);
 
 
 module.exports = { Userroute }       
