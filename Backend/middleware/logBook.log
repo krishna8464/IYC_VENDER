@@ -616,3 +616,16 @@
 ::ffff:127.0.0.1 - - [03/Oct/2023:09:26:01 +0000] "GET /user/search/first_name/Rajimol HTTP/1.1" 200 2 "-" "insomnia/2023.5.8"
 ::ffff:127.0.0.1 - - [03/Oct/2023:09:26:01 +0000] "GET /user/search/first_name/Rajimol HTTP/1.1" 200 2 "-" "insomnia/2023.5.8"
 
+::ffff:127.0.0.1 - - [03/Oct/2023:14:42:56 +0000] "GET /vender/getverifiedrecordsReport HTTP/1.1" 200 1055811 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:42:56 +0000] "GET /vender/getverifiedrecordsReport HTTP/1.1" 200 1055811 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:51:17 +0000] "GET /vender/getverificationfailedrecordsReport HTTP/1.1" 200 461492 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:51:17 +0000] "GET /vender/getverificationfailedrecordsReport HTTP/1.1" 200 461492 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:51:37 +0000] "GET /user/adminfindUser/id/2381 HTTP/1.1" 200 761 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:51:37 +0000] "GET /user/adminfindUser/id/2381 HTTP/1.1" 200 761 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:51:38 +0000] "GET /user/adminfindUser/id/2381 HTTP/1.1" 200 761 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:51:38 +0000] "GET /user/adminfindUser/id/2381 HTTP/1.1" 200 761 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:52:50 +0000] "GET /user/search/first_name/Rajimol HTTP/1.1" 200 2 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:52:50 +0000] "GET /user/search/first_name/Rajimol HTTP/1.1" 200 2 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:53:08 +0000] "GET /user/search/id/8000 HTTP/1.1" 200 796 "-" "insomnia/2023.5.8"
+::ffff:127.0.0.1 - - [03/Oct/2023:14:53:08 +0000] "GET /user/search/id/8000 HTTP/1.1" 200 796 "-" "insomnia/2023.5.8"
+

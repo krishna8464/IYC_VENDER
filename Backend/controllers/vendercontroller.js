@@ -491,7 +491,7 @@ exports.assignVender = async (req, res) => {
   // console.log(venderid,userid);
   try {
     const [updatedRowCount] = await Users.update(
-      { venderID: venderid },
+      { inspectorId: venderid },
       {
         where: { id: userid },
       }
