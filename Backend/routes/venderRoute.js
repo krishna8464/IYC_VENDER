@@ -33,6 +33,7 @@ const {
     releaveInspector , 
     getcountofnotassignedUserstoworker , 
     getcountofnotassignedUserstoinspectors ,
+    getmastercountofnotassignedUserstoinspectors ,
     getinspectorallassignedUsers , 
     getinspectornotverifiedUsers , 
     getinspectorverifiedUsers , 
@@ -46,11 +47,15 @@ const {
     getStatisticsbyworkerauth , 
     getStatisticsbyinspectorid ,
     getStatisticsbyinspectorauth , 
+    getMasterstatisticsbyinspectorid,
+    getMasterstatisticsbyauth,
     getworkerassignedallUsers ,
     getworkerverifiedUsers ,
     getworkernotverifiedUsers,
     recordInspectorstatistics,
+    masterrecordInspectorstatistics ,
     unassignedrecordstoInspector,
+    masterunassignedrecordstoInspector ,
     getverificationfailedRecords,
     getverificationfailedRecordsbyauth,
     inspectorReport ,
@@ -65,7 +70,7 @@ Venderroute.post("/getOTP", logger , getOTP );
 
 Venderroute.post("/validateOTP", logger , validateOTP);
 
-Venderroute.patch("/update/:id", logger , updateVenderbyid );
+Venderroute.patch("/update/:id", logger , authMiddleware , updateVenderbyid );
 
 Venderroute.patch("/updateVenderbyauth" , logger , authMiddleware , updateVenderbyauth);
 
@@ -85,7 +90,7 @@ Venderroute.patch("/deccount" , logger , authMiddleware , venderdecCount);
 
 Venderroute.get("/venderStatistics", logger , authMiddleware , venderStatistics);
 
-Venderroute.get("/topthree", logger , vendertopScore);
+Venderroute.get("/topthree/:state_code", logger , vendertopScore);
 
 Venderroute.get("/venderscoreASC", logger , venderscoreASC);
 
@@ -93,7 +98,7 @@ Venderroute.get("/venderscoreDSC", logger, venderscoreDESC );
 
 Venderroute.get("/vendernameASC", logger, vendernameASC );
 
-Venderroute.get("/search/:key/:value", logger, authMiddleware , findVender );
+Venderroute.get("/search/:key/:value/:state_code", logger, authMiddleware , findVender );
 
 Venderroute.post("/assignVender/:venderid/:userid", logger , assignVender);
 
@@ -101,7 +106,7 @@ Venderroute.post("/assignWorker/:venderid/:recordcount", logger , authMiddleware
 
 Venderroute.post("/releaveworker/:venderid", logger , authMiddleware , releaveWorker);
 
-Venderroute.post("/assignInspector/:venderid/:recordcount" , logger , authMiddleware , assignInspector );
+Venderroute.post("/assignInspector/:venderid/:recordcount/:state_code" , logger , authMiddleware , assignInspector );
 
 Venderroute.post("/releaveInspector/:venderid", logger , authMiddleware , releaveInspector);
 
@@ -111,11 +116,13 @@ Venderroute.post("/releaveInspector/:venderid", logger , authMiddleware , releav
 
 Venderroute.get("/getcountofnotassignedUserstoworker", logger ,getcountofnotassignedUserstoworker);
 
-Venderroute.get("/getcountofnotassignedUserstoinspectors", logger , getcountofnotassignedUserstoinspectors)
+Venderroute.get("/getcountofnotassignedUserstoinspectors/:state_code", logger , getcountofnotassignedUserstoinspectors);
+
+Venderroute.get("/getmastercountofnotassignedUserstoinspectors" , logger , getmastercountofnotassignedUserstoinspectors)
 
 Venderroute.get("/getWorkers" , logger , getWorkers);
 
-Venderroute.get("/getInspectors" , logger , getInspectors);
+Venderroute.get("/getInspectors/:state_code" , logger , getInspectors);
 
 Venderroute.get("/workergetASC" , logger , workergetASC);
 
@@ -129,9 +136,13 @@ Venderroute.get("/getStatisticsbyworkerid/:workerid", logger , getStatisticsbywo
 
 Venderroute.get("/getStatisticsbyworkerauth" , logger , authMiddleware , getStatisticsbyworkerauth);
 
-Venderroute.get("/getStatisticsbyinspectorid/:inspectorid", logger , getStatisticsbyinspectorid);
+Venderroute.get("/getStatisticsbyinspectorid/:inspectorid/:state_code", logger , getStatisticsbyinspectorid);
 
-Venderroute.get("/getStatisticsbyinspectorauth" , logger , authMiddleware , getStatisticsbyinspectorauth);
+Venderroute.get("/getStatisticsbyinspectorauth/:state_code" , logger , authMiddleware , getStatisticsbyinspectorauth);
+
+Venderroute.get("/getMasterstatisticsbyinspectorid/:inspectorid" , logger , getMasterstatisticsbyinspectorid);
+
+Venderroute.get("/getMasterstatisticsbyauth" , logger , authMiddleware , getMasterstatisticsbyauth);
 
 Venderroute.get("/getworkerassignedallUsers" , logger , authMiddleware , getworkerassignedallUsers);
 
@@ -145,9 +156,13 @@ Venderroute.get("/getinspectorverifiedUsers" , logger , authMiddleware , getinsp
 
 Venderroute.get("/getinspectorallassignedUsers" , logger , authMiddleware , getinspectorallassignedUsers);
 
-Venderroute.get("/recordInspectorstatistics" , logger , recordInspectorstatistics);
+Venderroute.get("/recordInspectorstatistics/:state_code" , logger , recordInspectorstatistics);
 
-Venderroute.get("/unassignedrecordstoInspector/:page" , logger , unassignedrecordstoInspector);
+Venderroute.get("/masterrecordInspectorstatistics" , logger , masterrecordInspectorstatistics)
+
+Venderroute.get("/unassignedrecordstoInspector/:page/:state_code" , logger , unassignedrecordstoInspector);
+
+Venderroute.get("/masterunassignedrecordstoInspector/:page" , logger , masterunassignedrecordstoInspector);
 
 Venderroute.get("/getverificationfailedRecords" , logger , getverificationfailedRecords);
 

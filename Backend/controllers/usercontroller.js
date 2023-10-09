@@ -149,7 +149,7 @@ exports.filterbyStatus = async(req,res)=>{
     } catch (error) {
         res.status(500).json({message : "Some thing went wrong in the filter route"});
     }
-}
+};
 
 exports.getallcount = async(req,res)=>{
     try {

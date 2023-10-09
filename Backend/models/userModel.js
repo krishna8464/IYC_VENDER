@@ -81,7 +81,11 @@ const Users=sequelize.define("users",{
         type: DataTypes.STRING,
         allowNull: true, // You can change this to false if it cannot be null
         defaultValue: '', // Default value is an empty string
-      },    
+      },
+      state_code: {
+        type: DataTypes.STRING, // You can adjust the data type as needed
+        allowNull: false, // Or true, depending on whether it can be null
+    },    
 });
 
 Users.belongsTo(Vender, { foreignKey: 'inspectorId', as: 'VenderInfo' });

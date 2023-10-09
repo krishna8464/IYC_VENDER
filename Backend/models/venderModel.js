@@ -34,6 +34,10 @@ const Vender=sequelize.define("vender",{
         type: DataTypes.STRING,
         defaultValue: 'active', // Set the default value to 'active'
     },
+    state_code: {
+        type: DataTypes.STRING, // You can adjust the data type as needed
+        allowNull: false, // Or true, depending on whether it can be null
+    },
     history: {
         type: DataTypes.JSON, 
         defaultValue: [], // Default value is an empty array
