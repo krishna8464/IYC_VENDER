@@ -129,16 +129,35 @@ exports.validateOTP = async (req, res) => {
 
 exports.updateVenderbyid = async (req, res) => {
   let ID = req.params["id"];
+  let adminId = req.body.venderId;
   let updateData = req.body;
   try {
-    let updated = await Vender.update(updateData, { where: { id: ID } });
-
-    if (updated[0] == 1) {
-      let user = await Vender.findOne({ where: { id: ID } });
-      res.status(200).json(user);
-    } else {
-      res.status(400).json({ message: "No one present with the id" });
-    }
+      const vender = await Vender.findByPk(ID);
+      // console.log(vender)
+      if(vender.state_code !== updateData.state_code){
+        console.log("state_code is different")
+         const newHistoryEntry = {
+          adminId : adminId,
+          action: "change state code",
+          from : vender.state_code,
+          to : updateData.state_code,
+          date: new Date().toISOString().slice(0, 10), // Current date in 'YYYY-MM-DD' format
+          time: new Date().toISOString().slice(11, 19), // Current time in 'HH:MM:SS' format
+        };
+        vender.history.push(newHistoryEntry);
+        updateQuery = { history: vender.history };
+        const [updatedRows] = await Vender.update(updateQuery, {
+          where: { id: ID },
+        });
+      } 
+     
+      let updated = await Vender.update(updateData, { where: { id: ID } });
+      if (updated[0] == 1) {
+        let user = await Vender.findOne({ where: { id: ID } });
+        res.status(200).json(user);
+      } else {
+        res.status(400).json({ message: "No one present with the id" });
+      }
   } catch (error) {
     res.status(500).json({ message: "something went wrong with the route" });
   }
@@ -208,6 +227,8 @@ exports.getallVender = async (req, res) => {
 };
 
 
+
+
 exports.getWorkers = async (req,res) => {
   try {
     const vendors = await Vender.findAll({
@@ -222,24 +243,46 @@ exports.getWorkers = async (req,res) => {
 }
 
 exports.getInspectors = async (req,res) => {
+  const state_code = req.params["state_code"]
   try {
-    const vendors = await Vender.findAll({
+    const inspectors = await Vender.findAll({
       where: {
-        role: {
-          [Op.or]: ['admin', 'inspector'],
-        },
+        role: "inspector",
+        state_code: state_code,
       },
+      order: [["name", "ASC"]],
     });
-    res.status(200).send(vendors);
+    const admins = await Vender.findAll({
+      where: {
+        role: "admin",
+      },
+      order: [["name", "ASC"]],
+    });
+    const mergedArray = inspectors.concat(admins)
+    res.status(200).send(mergedArray);
   } catch (error) {
     res.status(500).json({ message: "something went wrong with the route" });
   }
 }
 
+// exports.getInspectorswithoutstate = async (req,res) => {
+//   try {
+//     const vendors = await Vender.findAll({
+//       where: {
+//         role: {
+//           [Op.or]: ['admin', 'inspector'],
+//         },
+//       },
+//     });
+//     res.status(200).send(vendors);
+//   } catch (error) {
+//     res.status(500).json({ message: "something went wrong with the route" });
+//   }
+// }
+
 
 exports.getcoutallVender = async (req, res) => {
   try {
-    console.log(1)
     let vendercount = await Vender.count();
     const workerVenders = await Vender.count({
       where: {
@@ -322,10 +365,13 @@ exports.venderStatistics = async (req, res) => {
 };
 
 exports.vendertopScore = async (req, res) => {
-  let venderid = req.body.venderId;
-
+  const state_code = req.params["state_code"];  
   try {
+    console.log(state_code)
     const topVendors = await Vender.findAll({
+      where: {
+        state_code: state_code, // Add the condition for state_code
+      },
       order: [["count", "DESC"]], // Order by the 'count' column in descending order
       limit: 3, // Limit the result to 3 records
     });
@@ -446,15 +492,18 @@ exports.inspectorgetDESC = async (req,res) => {
 exports.findVender = async (req, res) => {
   const key = req.params["key"];
   const value = req.params["value"];
-  console.log(key, value);
+  const state_code = req.params["state_code"];
   try {
     const lowerCaseValue = value.toLowerCase(); // Convert the query value to lowercase
 
     const vender = await Vender.findAll({
-      where: sequelize.where(
-        sequelize.fn("LOWER", sequelize.col(key)),
-        lowerCaseValue
-      ),
+      where: {
+        state_code: state_code, // Add the condition for state_code
+        [Op.or]: [
+          sequelize.where(sequelize.fn("LOWER", sequelize.col(key)), lowerCaseValue),
+          // Add any other conditions you may have here
+        ],
+      },
     });
     res.status(200).json(vender);
   } catch (error) {
@@ -468,15 +517,11 @@ exports.findVender = async (req, res) => {
 exports.venderLogout = async (req, res) => {
   try {
     let [tokenSyn, token] = req.headers.authorization.trim().split(" ");
-
     body = {
       tocken: token,
     };
-
     let black = await Tocken.create(body);
-
     // let blacklisting = await client.SADD("blackTokens", token);
-
     res.status(200).json({});
   } catch (error) {
     res
@@ -649,11 +694,13 @@ exports.assignInspector = async (req, res) => {
   let adminId = req.body.venderId
   const venderid = req.params["venderid"];
   const recordcount = Number(req.params["recordcount"]);
+  const state_code = req.params["state_code"]
   try {
     const vendor = await Vender.findOne({
       where: {
         id: venderid,
         role: "inspector",
+        state_code : state_code
       },
     });
     if(vendor){
@@ -664,6 +711,7 @@ exports.assignInspector = async (req, res) => {
             [Op.in]: ['0', '1', "2", '3', '4', '5', '6', '7', '8', '9', '10'],
           },
           inspectorId: 0,
+          state_code : state_code
         },
       });
       console.log(count)
@@ -677,6 +725,7 @@ exports.assignInspector = async (req, res) => {
                 [Op.in]: ['0', '1', "2", '3', '4', '5', '6', '7', '8', '9', '10'],
               },
               inspectorId: 0,
+              state_code : state_code
             },
             limit: recordcount, // Limit the number of records to update
           }
@@ -686,6 +735,7 @@ exports.assignInspector = async (req, res) => {
         const newHistoryEntry = {
           adminId : adminId,
           action: "assigned",
+          state : state_code,
           date: new Date().toISOString().slice(0, 10), // Current date in 'YYYY-MM-DD' format
           time: new Date().toISOString().slice(11, 19), // Current time in 'HH:MM:SS' format
           recordcount: recordcount,
@@ -705,7 +755,7 @@ exports.assignInspector = async (req, res) => {
     }else{
       res
       .status(400)
-      .json({ message: "There is no vender with this id or he is not an inspector" });
+      .json({ message: "There is no vender with this id or he is not an inspector or his not assigned to this state" });
     }
    
   } catch (error) {
@@ -770,7 +820,7 @@ exports.releaveInspector = async (req, res) => {
     }else{
       res
         .status(400)
-        .json({ message: "There is no vender with this id or is not a inspector" });
+        .json({ message: "There is no vender with this id or he is not an inspector or his not assigned to this state" });
     }
   } catch (error) {
     res
@@ -936,17 +986,20 @@ try {
 
 exports.getStatisticsbyinspectorid = async (req,res) => {
   const workerid = req.params["inspectorid"];
+  const state_code = req.params["state_code"]
 try {
   const countWithStatusverified = await Users.count({
     where: {
       inspectorId: workerid,
-      status: "verified"
+      status: "verified",
+      state_code: state_code
     },
   });
   const countWithStatusverification_failed = await Users.count({
     where: {
       inspectorId: workerid,
-      status: "verification_failed"
+      status: "verification_failed",
+      state_code: state_code
     },
   });
   let countWithStatus = countWithStatusverified+countWithStatusverification_failed
@@ -955,6 +1008,7 @@ try {
     where: {
       inspectorId: workerid,
       status: 'not_verified',
+      state_code: state_code
     },
   });
   res.status(200).send({"verifiedcount" : countWithStatusverified ,  "verification_failedcount" : countWithStatusverification_failed , "empetycount" : countWithEmptyStatus})
@@ -969,17 +1023,20 @@ try {
 
 exports.getStatisticsbyinspectorauth = async (req,res) => {
   const workerid = req.body.venderId
+  const state_code = req.params["state_code"]
 try {
   const countWithStatusverified = await Users.count({
     where: {
       inspectorId: workerid,
-      status: "verified"
+      status: "verified",
+      state_code : state_code
     },
   });
   const countWithStatusverification_failed = await Users.count({
     where: {
       inspectorId: workerid,
-      status: "verification_failed"
+      status: "verification_failed",
+      state_code: state_code
     },
   });
   let countWithStatus = countWithStatusverified+countWithStatusverification_failed
@@ -988,6 +1045,7 @@ try {
     where: {
       inspectorId: workerid,
       status: 'not_verified',
+      state_code : state_code
     },
   });
   res.status(200).send({"verifiedcount" : countWithStatusverified ,  "verification_failedcount" : countWithStatusverification_failed , "empetycount" : countWithEmptyStatus})
@@ -999,7 +1057,52 @@ try {
 }
 };
 
+// todo()
+ 
+exports.getMasterstatisticsbyinspectorid = async ( req , res ) => {
+  const inspectorid = req.params["inspectorid"];
+  try {
+    const results = await Users.findAll({
+      attributes: [
+        'state_code',
+        [Sequelize.fn('SUM', Sequelize.literal("CASE WHEN status = 'verified' THEN 1 ELSE 0 END")), 'verified_count'],
+        [Sequelize.fn('SUM', Sequelize.literal("CASE WHEN status = 'verification_failed' THEN 1 ELSE 0 END")), 'verification_failed_count'],
+        [Sequelize.fn('SUM', Sequelize.literal("CASE WHEN status = 'not_verified' THEN 1 ELSE 0 END")), 'not_verified_count'],
+      ],
+      where: {
+        inspectorId: inspectorid,
+      },
+      group: ['state_code'],
+    });
+    // console.log(results);
+    res.status(200).send(results);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
 
+// todo()
+exports.getMasterstatisticsbyauth = async ( req ,res ) => {
+  const inspectorid = req.body.venderId;
+  try {
+    const results = await Users.findAll({
+      attributes: [
+        'state_code',
+        [Sequelize.fn('SUM', Sequelize.literal("CASE WHEN status = 'verified' THEN 1 ELSE 0 END")), 'verified_count'],
+        [Sequelize.fn('SUM', Sequelize.literal("CASE WHEN status = 'verification_failed' THEN 1 ELSE 0 END")), 'verification_failed_count'],
+        [Sequelize.fn('SUM', Sequelize.literal("CASE WHEN status = 'not_verified' THEN 1 ELSE 0 END")), 'not_verified_count'],
+      ],
+      where: {
+        inspectorId: inspectorid,
+      },
+      group: ['state_code'],
+    });
+    // console.log(results);
+    res.status(200).send(results);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
 
 
 exports.getcountofnotassignedUserstoworker = async (req, res) => {
@@ -1023,6 +1126,31 @@ exports.getcountofnotassignedUserstoworker = async (req, res) => {
 };
 
 exports.getcountofnotassignedUserstoinspectors = async (req,res) =>{
+  const state_code = req.params["state_code"];
+  try {
+    const count = await Users.count({
+      where: {
+        status: "not_verified",
+        venderStatus: {
+          [Op.in]: ['0', '1', "2", '3', '4', '5', '6', '7', '8', '9', '10'],
+        },
+        inspectorId: 0,
+        state_code : state_code
+      },
+    });
+    res.status(200).send({ count: count });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message:
+          "something went wrong with the getcountofnotassignedUsers route",
+      });
+  }
+};
+
+//todo()
+exports.getmastercountofnotassignedUserstoinspectors = async (req,res) =>{
   try {
     const count = await Users.count({
       where: {
@@ -1177,6 +1305,37 @@ exports.getinspectorverifiedUsers = async (req,res) => {
 
 //todo
 exports.recordInspectorstatistics = async (req,res) => {
+  const state_code = req.params["state_code"];
+  try {
+    const totalrecordscount = await Users.count({
+      where: {
+        state_code: state_code, // Add your desired state code here
+      },
+    });
+    const unassignedinspectorcount = await Users.count({
+      where: {
+        status: "not_verified",
+        venderStatus: {
+          [Op.in]: ['0', '1', "2", '3', '4', '5', '6', '7', '8', '9', '10'],
+        },
+        inspectorId: 0,
+        state_code: state_code,
+      },
+    });
+    const assignedinspectorcount = totalrecordscount-unassignedinspectorcount
+    res.status(200).send({unassignedinspectorcount,assignedinspectorcount,totalrecordscount});
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the recordInspectorstatistics route",
+    });
+  }
+};
+
+//todo()
+exports.masterrecordInspectorstatistics = async ( req , res ) => {
   try {
     const totalrecordscount = await Users.count();
     const unassignedinspectorcount = await Users.count({
@@ -1200,8 +1359,38 @@ exports.recordInspectorstatistics = async (req,res) => {
   }
 };
 
+
 //todo
 exports.unassignedrecordstoInspector = async (req,res) => {
+  let page = req.params["page"];
+  const state_code = req.params["state_code"]
+  const pageSize = 10
+  try {
+    const unassignedInspectors = await Users.findAll({
+      where: {
+        status: 'not_verified',
+        venderStatus: {
+          [Sequelize.Op.in]: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+        },
+        inspectorId: 0,
+        state_code : state_code
+      },
+      offset: (page - 1) * pageSize, // Calculate the offset based on page number
+      limit: pageSize, // Set the limit to the number of records per page
+    });
+    res.status(200).send(unassignedInspectors);
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the unassignedrecordstoInspector route",
+    });
+  }
+};
+
+//todo()
+exports.masterunassignedrecordstoInspector = async ( req , res ) => {
   let page = req.params["page"];
   const pageSize = 10
   try {
@@ -1216,8 +1405,6 @@ exports.unassignedrecordstoInspector = async (req,res) => {
       offset: (page - 1) * pageSize, // Calculate the offset based on page number
       limit: pageSize, // Set the limit to the number of records per page
     });
-  
-    
     res.status(200).send(unassignedInspectors);
   } catch (error) {
     res
@@ -1227,7 +1414,7 @@ exports.unassignedrecordstoInspector = async (req,res) => {
         "something went wrong with the unassignedrecordstoInspector route",
     });
   }
-};
+}
 
 //todo
 exports.getverificationfailedRecords = async (req,res) => {
@@ -1351,6 +1538,8 @@ exports.getverifiedrecordsReport = async (req,res) => {
     const resultArray = users.map((x) => {
       const result = {
       "id": x.id,
+      "aggr_id": x.aggr_id,
+      "member_id" : x.member_id,
       "firstName": x.first_name,
       "lastName": x.last_name,
       "relative_name": x.relative_name,
@@ -1409,6 +1598,8 @@ exports.getverificationfailedrecordsReport = async (req,res) => {
     const resultArray = users.map((x) => {
       const result = {
       "id": x.id,
+      "aggr_id": x.aggr_id,
+      "member_id" : x.member_id,
       "firstName": x.first_name,
       "lastName": x.last_name,
       "relative_name": x.relative_name,
