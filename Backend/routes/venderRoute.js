@@ -56,11 +56,13 @@ const {
     masterrecordInspectorstatistics ,
     unassignedrecordstoInspector,
     masterunassignedrecordstoInspector ,
+    masterunassignedrecordstotheInspectorreport ,
     getverificationfailedRecords,
     getverificationfailedRecordsbyauth,
     inspectorReport ,
     getverifiedrecordsReport,
-    getverificationfailedrecordsReport
+    getverificationfailedrecordsReport,
+    getvenderHistorybyid
 } = require("../controllers/vendercontroller");
 
 
@@ -71,6 +73,8 @@ Venderroute.post("/getOTP", logger , getOTP );
 Venderroute.post("/validateOTP", logger , validateOTP);
 
 Venderroute.patch("/update/:id", logger , authMiddleware , updateVenderbyid );
+
+Venderroute.get("/getvenderHistorybyid/:id" , logger , getvenderHistorybyid)
 
 Venderroute.patch("/updateVenderbyauth" , logger , authMiddleware , updateVenderbyauth);
 
@@ -161,6 +165,8 @@ Venderroute.get("/recordInspectorstatistics/:state_code" , logger , recordInspec
 Venderroute.get("/masterrecordInspectorstatistics" , logger , masterrecordInspectorstatistics)
 
 Venderroute.get("/unassignedrecordstoInspector/:page/:state_code" , logger , unassignedrecordstoInspector);
+
+Venderroute.get("/masterunassignedrecordstotheInspectorreport" , logger , masterunassignedrecordstotheInspectorreport)
 
 Venderroute.get("/masterunassignedrecordstoInspector/:page" , logger , masterunassignedrecordstoInspector);
 
