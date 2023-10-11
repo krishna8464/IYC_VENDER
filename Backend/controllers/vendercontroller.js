@@ -117,6 +117,7 @@ exports.validateOTP = async (req, res) => {
             name: venderData.name,
             number: venderData.number,
             role: venderData.role,
+            state_code : venderData.state_code
           },
         });
     } else {
@@ -139,8 +140,8 @@ exports.updateVenderbyid = async (req, res) => {
          const newHistoryEntry = {
           adminId : adminId,
           action: "change state code",
-          from : vender.state_code,
-          to : updateData.state_code,
+          recordcount : 0,
+          state : `${vender.state_code} to ${updateData.state_code}`,
           date: new Date().toISOString().slice(0, 10), // Current date in 'YYYY-MM-DD' format
           time: new Date().toISOString().slice(11, 19), // Current time in 'HH:MM:SS' format
         };
@@ -162,6 +163,22 @@ exports.updateVenderbyid = async (req, res) => {
     res.status(500).json({ message: "something went wrong with the route" });
   }
 };
+
+exports.getvenderHistorybyid = async (req ,res ) => {
+  let ID = req.params["id"];
+  try {
+    const historyData = await Vender.findAll({
+      attributes: ['history'],
+      where: {
+        id: ID, 
+      },
+    });
+    res.status(200).send(historyData)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: "something went wrong with the route" });
+  }
+}
 
 exports.updateVenderbyauth = async (req,res) => {
     let ID = req.body.venderId;
@@ -801,6 +818,7 @@ exports.releaveInspector = async (req, res) => {
         const newHistoryEntry = {
           adimId : adminId,
           action: "released",
+          state : vender.state_code,
           date: new Date().toISOString().slice(0, 10), // Current date in 'YYYY-MM-DD' format
           time: new Date().toISOString().slice(11, 19), // Current time in 'HH:MM:SS' format
           recordcount: updatedRowCount,
@@ -1388,6 +1406,28 @@ exports.unassignedrecordstoInspector = async (req,res) => {
     });
   }
 };
+
+exports.masterunassignedrecordstotheInspectorreport = async (req , res) => {
+  try {
+    const unassignedInspectors = await Users.findAll({
+      where: {
+        status: 'not_verified',
+        venderStatus: {
+          [Sequelize.Op.in]: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+        },
+        inspectorId: 0,
+      },
+    });
+    res.status(200).send(unassignedInspectors)
+  } catch (error) {
+    res
+    .status(500)
+    .json({
+      message:
+        "something went wrong with the unassignedrecordstoInspector route",
+    });
+  }
+}
 
 //todo()
 exports.masterunassignedrecordstoInspector = async ( req , res ) => {
